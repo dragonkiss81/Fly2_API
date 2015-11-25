@@ -30,6 +30,22 @@ using namespace std;
 #define SMOOTHINESS 1
 #define NUM_OF_BADGUYS 10
 
+#define HATKRANGE 100
+#define NATK1RANGE 100
+#define NATK2RANGE 150
+
+#define HATKOFFSET 100
+#define NATK1OFFSET 10 
+#define NATK2OFFSET 100
+
+#define HATKDAMAGE 100
+#define NATK1DAMAGE 200
+#define NATK2DAMAGE 150
+
+
+
+
+
 VIEWPORTid vID;                 // the major viewport
 SCENEid sID;                    // the 3D scene
 OBJECTid cID, tID;              // the main camera and the terrain for terrain following
@@ -79,6 +95,27 @@ void ActorGen(FnScene scene, ACTNUM &actsystem, char* actor_name, char* action, 
 	cur_actor.Play(ONCE, 0.0f, FALSE, TRUE);
 }
 
+void ActAction(ACTNUM &actsystem, char* act, int damage_num)
+{
+	FnCharacter cur_actor;
+	ACTIONid cur_actor_idleID, cur_actor_curPoseID; // two actions
+	cur_actor.ID(actsystem.actorID);
+
+	actsystem.blood_remain = actsystem.blood_remain - damage_num;
+
+	if (actsystem.blood_remain > 0)
+		cur_actor_curPoseID = cur_actor.GetBodyAction(NULL, act);
+	else
+	{
+		float fDir[3], uDir[3];
+		fDir[0] = 1.0f; fDir[1] = 1.0f; fDir[2] = 0.0f;
+		uDir[0] = 1.0f; uDir[1] = 1.0f; uDir[2] = 0.0f;
+		cur_actor.SetDirection(fDir, uDir);
+		cur_actor_curPoseID = cur_actor.GetBodyAction(NULL, "Die");
+	}
+	cur_actor.SetCurrentAction(NULL, 0, cur_actor_curPoseID);
+}
+
 // some globals
 int frame = 0;
 int oldX, oldY, oldXM, oldYM, oldXMM, oldYMM;
@@ -105,26 +142,6 @@ void InitZoom(int, int);
 void ZoomCam(int, int);
 
 
-void ActAction(ACTNUM &actsystem, char* act, int damage_num)
-{
-	FnCharacter cur_actor;
-	ACTIONid cur_actor_idleID, cur_actor_curPoseID; // two actions
-	cur_actor.ID(actsystem.actorID);
-
-	actsystem.blood_remain = actsystem.blood_remain - damage_num;
-
-	if (actsystem.blood_remain > 0)
-		cur_actor_curPoseID = cur_actor.GetBodyAction(NULL, act);
-	else
-	{
-		float fDir[3], uDir[3];
-		fDir[0] = 1.0f; fDir[1] = 1.0f; fDir[2] = 0.0f;
-		uDir[0] = 1.0f; uDir[1] = 1.0f; uDir[2] = 0.0f;
-		cur_actor.SetDirection(fDir, uDir);
-		cur_actor_curPoseID = cur_actor.GetBodyAction(NULL, "Die");
-	}
-	cur_actor.SetCurrentAction(NULL, 0, cur_actor_curPoseID);
-}
 
 /*------------------
 the main program
@@ -278,30 +295,24 @@ void GameAI(int skip)
 {
 	// play character pose
 	FnCharacter actor;
+	FnCharacter cur_actor;
+
 	actor.ID(actorID);
-	//actor.Play(LOOP, (float)skip, FALSE, TRUE);
 
 	if (curPoseID == runID || curPoseID == idleID)
 	{
 		actor.Play(LOOP, (float)skip, FALSE, TRUE);
 	}
-	else if ( ! actor.Play(ONCE, (float)skip, FALSE, TRUE))
+	else if ( actor.Play(ONCE, (float)skip, FALSE, TRUE) == 0)
 	{
-		
 		actor.SetCurrentAction(NULL, 0, idleID, 10.0f);
-		actor.Play(LOOP, (float)skip, FALSE, TRUE);
 	}
 
-	FnCharacter cur_actor;
 	for (int i = 0; i < NUM_OF_BADGUYS; i++)
 	{
 		cur_actor.ID(badguyID[i].actorID);
 
-		if (curPoseID == runID || curPoseID == idleID)
-		{
-			cur_actor.Play(LOOP, (float)skip, FALSE, TRUE);
-		}
-		else if (!cur_actor.Play(ONCE, (float)skip, FALSE, TRUE) && badguyID[i].blood_remain > 0 )
+		if (!cur_actor.Play(ONCE, (float)skip, FALSE, TRUE) && badguyID[i].blood_remain > 0 )
 		{
 
 			ACTIONid CombatIdleID = cur_actor.GetBodyAction(NULL, "CombatIdle");
@@ -309,7 +320,6 @@ void GameAI(int skip)
 			cur_actor.Play(LOOP, (float)skip, FALSE, TRUE);
 		}
 	}
-	
 
 
 	// Camera's position and direction as a standard for character's location setting
@@ -599,9 +609,18 @@ void Movement(BYTE code, BOOL4 value)
 	//////////////////////////////////////////
 	// note : only hotkey input can trigger this function
 
-	FnCharacter actor;
-	actor.ID(actorID);
 
+	FnCharacter actor;
+	FnCharacter badguy;
+
+	float actorPos[3], actorfDir[3], actoruDir[3];
+	float badguyPos[3], badguyfDir[3], badguyuDir[3];
+
+	actor.ID(actorID);
+	actor.GetPosition(actorPos);
+	actor.GetDirection(actorfDir, actoruDir);
+
+	int status;
 
 	// 2. use a global idle_count variable to memorize the action status.
 	//    (to prevent the "slide" actor bug)
@@ -612,16 +631,62 @@ void Movement(BYTE code, BOOL4 value)
 
 		if (FyCheckHotKeyStatus(FY_Q) && dirCount % SMOOTHINESS == 0)
 		{
-			dirCount = 0 - dirState;
-			dirState = 0;
 			status = 1;
+
+			actorPos[0] += actorfDir[0] * HATKOFFSET;
+			actorPos[1] += actorfDir[1] * HATKOFFSET;
+
+			for (int i = 0; i < NUM_OF_BADGUYS; i++)
+			{
+				badguy.ID(badguyID[i].actorID);
+				badguy.GetPosition(badguyPos);
+
+				if (FyDistance(badguyPos, actorPos) < HATKRANGE)
+				{
+					ActAction(badguyID[i], "Damage1", HATKDAMAGE);
+				}
+			}
 		}
 
 		if (FyCheckHotKeyStatus(FY_W) && dirCount % SMOOTHINESS == 0)
+		{
 			status = 2;
+
+			actorPos[0] += actorfDir[0] * NATK1OFFSET;
+			actorPos[1] += actorfDir[1] * NATK1OFFSET;
+
+			for (int i = 0; i < NUM_OF_BADGUYS; i++)
+			{
+				badguy.ID(badguyID[i].actorID);
+				badguy.GetPosition(badguyPos);
+
+				if (FyDistance(badguyPos, actorPos) < NATK1RANGE)
+				{
+					ActAction(badguyID[i], "Damage2", NATK1DAMAGE);
+				}
+			}
+
+		}
+
 		if (FyCheckHotKeyStatus(FY_E) && dirCount % SMOOTHINESS == 0)
+		{
 			status = 3;
 
+			actorPos[0] += actorfDir[0] * NATK2OFFSET;
+			actorPos[1] += actorfDir[1] * NATK2OFFSET;
+
+			for (int i = 0; i < NUM_OF_BADGUYS; i++)
+			{
+				badguy.ID(badguyID[i].actorID);
+				badguy.GetPosition(badguyPos);
+
+				if (FyDistance(badguyPos, actorPos) < NATK2RANGE)
+				{
+					ActAction(badguyID[i], "Damage2", NATK2DAMAGE);
+				}
+			}
+
+		}
 		if (FyCheckHotKeyStatus(FY_UP) && dirCount % SMOOTHINESS == 0)
 		{
 			dirCount = 0 - dirState;
@@ -651,104 +716,51 @@ void Movement(BYTE code, BOOL4 value)
 
 	// 3. the actor is idle when idle_count equal to zero.   
 
-	float actorPos[3];
-	actor.GetPosition(actorPos);
-
-	float badguyPos[3], badguyfDir[3], badguyuDir[3];
-	FnCharacter badguy;
-
+	
 	if (idle_count > 0)
 	{
 
 		if (status == 1)
 		{
 			curPoseID = NormalAttack1ID;
-
-			for (int i = 0; i < NUM_OF_BADGUYS; i++)
-			{
-				badguy.ID(badguyID[i].actorID);
-				badguy.GetPosition(badguyPos);
-
-				if (FyDistance(badguyPos, actorPos) < 50)
-				{
-					ActAction(badguyID[i], "Damage1", 100);
-				}
-			}
 		}
-
 		else if (status == 2)
 		{
 			curPoseID = NormalAttack2ID;
-
-			for (int i = 0; i < NUM_OF_BADGUYS; i++)
-			{
-				badguy.ID(badguyID[i].actorID);
-				badguy.GetPosition(badguyPos);
-
-				if (FyDistance(badguyPos, actorPos) < 70)
-				{
-					ActAction(badguyID[i], "Damage2", 200);
-				}
-			}
 		}
 		else if (status == 3)
 		{
 			curPoseID = HeavyAttack1ID;
 
-			for (int i = 0; i < NUM_OF_BADGUYS; i++)
-			{
-				badguy.ID(badguyID[i].actorID);
-				badguy.GetPosition(badguyPos);
-
-				if (FyDistance(badguyPos, actorPos) < 70)
-				{
-					ActAction(badguyID[i], "Damage2", 400);
-				}
-			}
 		}
 		else
 		{
 			curPoseID = runID;
 
-			for (int i = 0; i < NUM_OF_BADGUYS; i++)
-			{
-				ActAction(badguyID[i], "CombatIdle", 0);
-			}
+//			for (int i = 0; i < NUM_OF_BADGUYS; i++)
+//			{
+//				ActAction(badguyID[i], "CombatIdle", 0);
+//			}
 		}
 
 		actor.SetCurrentAction(NULL, 0, curPoseID, 10.0f);
-		//actor.Play(ONCE, 0.0f, FALSE, TRUE);
+		actor.Play(ONCE, 0.0f, FALSE, TRUE);
 	}
 	else
 	{
 		curPoseID = idleID;
 		actor.SetCurrentAction(NULL, 0, curPoseID, 10.0f);
-		//actor.Play(START, 0.0f, FALSE, TRUE);
 
-		for (int i = 0; i < NUM_OF_BADGUYS; i++)
-		{
-			ActAction(badguyID[i], "CombatIdle", 0);
-		}
+//		for (int i = 0; i < NUM_OF_BADGUYS; i++)
+//		{
+//			ActAction(badguyID[i], "CombatIdle", 0);
+//		}
+	
 	}
 
-}
+
 
 /*
-void Movement(BYTE code, BOOL4 value)
-{
-	//////////////////////////////////////////
-	// Homework #01 part 2
-	//////////////////////////////////////////
-
-	// note : only hotkey input can trigger this function
-
-	// 1. get the actor
-	FnCharacter actor, cur_actor;
-	actor.ID(actorID);
-	float pos[3],pos2[3],fDir[3],uDir[3];
-
-	// 2. use a global idle_count variable to memorize the action status.
-	//    (to prevent the "slide" actor bug)
 	if (value)
 	{
 		idle_count++;
@@ -756,13 +768,9 @@ void Movement(BYTE code, BOOL4 value)
 		{
 			actor.GetPosition(pos);
 			actor.GetDirection(fDir, uDir);
-
-			cur_actor.ID(badguyID[i].actorID);
-			cur_actor.GetPosition(pos2);
-
 			pos[0] += fDir[0] * HATKOFFSET;
 			pos[1] += fDir[1] * HATKOFFSET;
-
+			badguy.GetPosition(pos2);
 			if (FyDistance(pos, pos2) < HATKRANGE && life_Don > 0)
 			{
 				life_Don -= HATKDAMAGE;
@@ -771,7 +779,7 @@ void Movement(BYTE code, BOOL4 value)
 				{
 					curPoseID_Don = DieID_Don;
 				}
-				actor_Don.SetCurrentAction(NULL, 0, curPoseID_Don, 10.0f);
+				badguy.SetCurrentAction(NULL, 0, curPoseID_Don, 10.0f);
 			}
 			actor_Rob.GetPosition(pos2);
 			if (FyDistance(pos, pos2) < HATKRANGE && life_Rob > 0)
@@ -791,7 +799,7 @@ void Movement(BYTE code, BOOL4 value)
 			actor.GetDirection(fDir, uDir);
 			pos[0] += fDir[0] * NATK1OFFSET;
 			pos[1] += fDir[1] * NATK1OFFSET;
-			actor_Don.GetPosition(pos2);
+			badguy.GetPosition(pos2);
 			if (FyDistance(pos, pos2) < NATK1RANGE && life_Don > 0)
 			{
 				life_Don -= NATKDAMAGE1;
@@ -800,7 +808,7 @@ void Movement(BYTE code, BOOL4 value)
 				{
 					curPoseID_Don = DieID_Don;
 				}
-				actor_Don.SetCurrentAction(NULL, 0, curPoseID_Don, 10.0f);
+				badguy.SetCurrentAction(NULL, 0, curPoseID_Don, 10.0f);
 			}
 			actor_Rob.GetPosition(pos2);
 			if (FyDistance(pos, pos2) < NATK1RANGE && life_Rob > 0)
@@ -818,7 +826,7 @@ void Movement(BYTE code, BOOL4 value)
 		{
 			actor.GetPosition(pos);
 			actor.GetDirection(fDir, uDir);
-			actor_Don.GetPosition(pos2);
+			badguy.GetPosition(pos2);
 			if (FyDistance(pos, pos2) < NATK2RANGE && life_Don > 0)
 			{
 				life_Don -= NATKDAMAGE2;
@@ -827,7 +835,7 @@ void Movement(BYTE code, BOOL4 value)
 				{
 					curPoseID_Don = DieID_Don;
 				}
-				actor_Don.SetCurrentAction(NULL, 0, curPoseID_Don, 10.0f);
+				badguy.SetCurrentAction(NULL, 0, curPoseID_Don, 10.0f);
 			}
 			actor_Rob.GetPosition(pos2);
 			if (FyDistance(pos, pos2) < NATK2RANGE && life_Rob > 0)
@@ -895,10 +903,9 @@ void Movement(BYTE code, BOOL4 value)
 	{
 		curPoseID = idleID;
 		actor.SetCurrentAction(NULL, 0, curPoseID, 10.0f);
-	}
+	}*/
 
 }
-*/
 
 /*------------------
 quit the demo
