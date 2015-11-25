@@ -31,12 +31,12 @@ member       | Lin Sheng Hsuan, Cheng Yun Chung, 唐若曦, 楊喻涵
 
 ##### 2. hw3 : action parameter
 
--General Actions
+- General Actions
 	- Run 
 	- CombatIdle
 	- MoveRight
 	- MoveLeft
--Attack Actions
+- Attack Actions
 	- NormalAttack1
 	- NormalAttack2
 	- HeavyAttack1
