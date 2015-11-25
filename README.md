@@ -16,39 +16,34 @@ member       | Lin Sheng Hsuan, Cheng Yun Chung, 唐若曦, 楊喻涵
 ------------------
 ### C. Progress Report ###
 
-###### 1. hw3 : implement feature
+##### 1. hw3 : implement feature
 
-[complete]
-- set smooth number
-- blend the action : 10.f
-- back to idle after action //chung
-- life class //chung
-- do not "die" again //lin
-- attack scope setting //lin
-
-[bug]
-- do a complete action when press a hotkey //lin
-
-...[in detail](http://mropengate.blogspot.tw)
+- [complete]
+	- set smooth number
+	- blend the action : 10.f
+	- back to idle after action //chung
+	- life class //chung
+	- do not "die" again //lin
+	- attack scope setting //lin
+- [bug]
+	- do a complete action when press a hotkey //lin
 
 
-###### 2. hw3 : action parameter
+##### 2. hw3 : action parameter
 
-General Actions
-- Run 
-- CombatIdle
-- MoveRight
-- MoveLeft
-
-Attack Actions
-- NormalAttack1
-- NormalAttack2
-- HeavyAttack1
-
-Damage Actions
-- Damage1
-- Damage2
-- Die
+-General Actions
+	- Run 
+	- CombatIdle
+	- MoveRight
+	- MoveLeft
+-Attack Actions
+	- NormalAttack1
+	- NormalAttack2
+	- HeavyAttack1
+- Damage Actions
+	- Damage1
+	- Damage2
+	- Die
 
 
 ------------------
