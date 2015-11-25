@@ -731,16 +731,10 @@ void Movement(BYTE code, BOOL4 value)
 		else if (status == 3)
 		{
 			curPoseID = HeavyAttack1ID;
-
 		}
 		else
 		{
 			curPoseID = runID;
-
-//			for (int i = 0; i < NUM_OF_BADGUYS; i++)
-//			{
-//				ActAction(badguyID[i], "CombatIdle", 0);
-//			}
 		}
 
 		actor.SetCurrentAction(NULL, 0, curPoseID, 10.0f);
@@ -750,160 +744,8 @@ void Movement(BYTE code, BOOL4 value)
 	{
 		curPoseID = idleID;
 		actor.SetCurrentAction(NULL, 0, curPoseID, 10.0f);
-
-//		for (int i = 0; i < NUM_OF_BADGUYS; i++)
-//		{
-//			ActAction(badguyID[i], "CombatIdle", 0);
-//		}
-	
 	}
 
-
-
-/*
-	if (value)
-	{
-		idle_count++;
-		if (FyCheckHotKeyStatus(FY_A) && dirCount % SMOOTHINESS == 0)
-		{
-			actor.GetPosition(pos);
-			actor.GetDirection(fDir, uDir);
-			pos[0] += fDir[0] * HATKOFFSET;
-			pos[1] += fDir[1] * HATKOFFSET;
-			badguy.GetPosition(pos2);
-			if (FyDistance(pos, pos2) < HATKRANGE && life_Don > 0)
-			{
-				life_Don -= HATKDAMAGE;
-				curPoseID_Don = runID_Don;
-				if (life_Don <= 0)
-				{
-					curPoseID_Don = DieID_Don;
-				}
-				badguy.SetCurrentAction(NULL, 0, curPoseID_Don, 10.0f);
-			}
-			actor_Rob.GetPosition(pos2);
-			if (FyDistance(pos, pos2) < HATKRANGE && life_Rob > 0)
-			{
-				life_Rob -= HATKDAMAGE;
-				curPoseID_Rob = Damage1ID_Rob;
-				if (life_Rob <= 0)
-				{
-					curPoseID_Rob = DieID_Rob;
-				}
-				actor_Rob.SetCurrentAction(NULL, 0, curPoseID_Rob, 10.0f);
-			}
-		}
-		if (FyCheckHotKeyStatus(FY_D) && dirCount % SMOOTHINESS == 0)
-		{
-			actor.GetPosition(pos);
-			actor.GetDirection(fDir, uDir);
-			pos[0] += fDir[0] * NATK1OFFSET;
-			pos[1] += fDir[1] * NATK1OFFSET;
-			badguy.GetPosition(pos2);
-			if (FyDistance(pos, pos2) < NATK1RANGE && life_Don > 0)
-			{
-				life_Don -= NATKDAMAGE1;
-				curPoseID_Don = runID_Don;
-				if (life_Don <= 0)
-				{
-					curPoseID_Don = DieID_Don;
-				}
-				badguy.SetCurrentAction(NULL, 0, curPoseID_Don, 10.0f);
-			}
-			actor_Rob.GetPosition(pos2);
-			if (FyDistance(pos, pos2) < NATK1RANGE && life_Rob > 0)
-			{
-				life_Rob -= NATKDAMAGE1;
-				curPoseID_Rob = Damage1ID_Rob;
-				if (life_Rob <= 0)
-				{
-					curPoseID_Rob = DieID_Rob;
-				}
-				actor_Rob.SetCurrentAction(NULL, 0, curPoseID_Rob, 10.0f);
-			}
-		}
-		if (FyCheckHotKeyStatus(FY_F) && dirCount % SMOOTHINESS == 0)
-		{
-			actor.GetPosition(pos);
-			actor.GetDirection(fDir, uDir);
-			badguy.GetPosition(pos2);
-			if (FyDistance(pos, pos2) < NATK2RANGE && life_Don > 0)
-			{
-				life_Don -= NATKDAMAGE2;
-				curPoseID_Don = runID_Don;
-				if (life_Don <= 0)
-				{
-					curPoseID_Don = DieID_Don;
-				}
-				badguy.SetCurrentAction(NULL, 0, curPoseID_Don, 10.0f);
-			}
-			actor_Rob.GetPosition(pos2);
-			if (FyDistance(pos, pos2) < NATK2RANGE && life_Rob > 0)
-			{
-				life_Rob -= NATKDAMAGE2;
-				curPoseID_Rob = Damage1ID_Rob;
-				if (life_Rob <= 0)
-				{
-					curPoseID_Rob = DieID_Rob;
-				}
-				actor_Rob.SetCurrentAction(NULL, 0, curPoseID_Rob, 10.0f);
-			}
-		}
-		if (FyCheckHotKeyStatus(FY_UP) && dirCount % SMOOTHINESS == 0)
-		{
-			dirCount = 0 - dirState;
-			dirState = 0;
-		}
-		if (FyCheckHotKeyStatus(FY_RIGHT) && dirCount % SMOOTHINESS == 0)
-		{
-			dirCount = SMOOTHINESS /4 - dirState;
-			dirState = SMOOTHINESS /4;
-		}
-		if (FyCheckHotKeyStatus(FY_LEFT) && dirCount % SMOOTHINESS == 0)
-		{
-			dirCount = SMOOTHINESS * 3/4 - dirState;
-			dirState = SMOOTHINESS * 3/4;
-		}
-		if (FyCheckHotKeyStatus(FY_DOWN) && dirCount % SMOOTHINESS == 0)
-		{
-			dirCount = SMOOTHINESS /2 - dirState;
-			dirState = SMOOTHINESS /2;
-		}
-	}
-	else
-		idle_count--;
-
-
-
-	// 3. the actor is idle when idle_count equal to zero.   
-	if (idle_count > 0)
-	{
-		if (FyCheckHotKeyStatus(FY_A) && dirCount % SMOOTHINESS == 0)
-		{
-			curPoseID = Hatt1ID;
-			
-		}
-		else if (FyCheckHotKeyStatus(FY_D) && dirCount % SMOOTHINESS == 0)
-		{
-			curPoseID = Natt1ID;
-			
-		}
-		else if (FyCheckHotKeyStatus(FY_F) && dirCount % SMOOTHINESS == 0)
-		{
-			curPoseID = Natt2ID;
-		}
-		else
-		{
-			curPoseID = runID;
-		}
-		actor.SetCurrentAction(NULL, 0, curPoseID, 10.0f);
-		actor.Play(ONCE, 0.0f, FALSE, TRUE);
-	}
-	else if (curPoseID == runID)
-	{
-		curPoseID = idleID;
-		actor.SetCurrentAction(NULL, 0, curPoseID, 10.0f);
-	}*/
 
 }
 
