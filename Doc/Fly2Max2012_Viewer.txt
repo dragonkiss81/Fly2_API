@@ -1,0 +1,49 @@
+1. 安裝 Fly2Viewer.dlu Plugins
+   - 將 Fly2Viewer.dlu 拷貝至 3ds Max 2012 安裝目錄下的 plugins 目錄
+
+2. 使用 Fly2 Fly2Viewer Plugins
+   - 點擊 Utilities 選項會打開 "Utilities" 介面
+   - 點擊 "More..."按鍵，打開 "Utilities" 對話框，在清單中選擇 "Fly2 Export"
+   - 點擊 "OK" 後會打開 "Fly2 Viewer" 功能介面
+   - 選擇輸出人物 "Characters" 或是 場景與物件 "Scene Models"
+   - 勾選 "Preview" 選項，會先呼叫 Fly2 Viewer 軟體供使用者預覽或修改模型資料，
+     否則就直接輸出至選擇的目錄
+   - 點擊 "OK" Button 完成輸出或預覽的動作
+
+3. 使用 Fly2 Scene Models 輸出 Plugins   
+   - Fly2 會將所有 Max 物件輸出成獨立的 .cw3 模型檔案，並輸出一個 .cwn 檔
+      案紀錄所有物件的關係
+   - 輸出前可以勾選要不要輸出物件的動作，場景中的光源與攝影機
+   - 可在 Max 物件 User Defined Property 內鍵入輸出指令，常用的指令如下 :
+      . Motion 指令 : 輸出物件 Animation 資料，內建是輸出平移與旋轉資料
+      . Reference 指令 : 不輸出該物件資料，表示該物件是編輯時的參考物件
+      . VA : 以頂點動畫 (Vertex Animation) 輸出物件的動態資料
+      . Colorkey 指令 : 指該物件貼圖使用特定 Colorkey 縷空顏色，範例 : 使用紅
+        色為縷空色 Colorkey 255 0 0 
+      . Both 指令 : 輸出兩面三角面
+      . Scale 指令 : 輸出物件 Scale Animation 資料，內建是不輸出Scale資料
+      . UV 指令 : 輸出物件的貼圖座標動畫，範例 : UV 0.1 0.0 指貼圖座標每次
+        會平移 (0.1, 0.0)
+      . RG 指令 : 指定物件渲染的群組關係，RG指令須加上數字指定輸出物件的
+        渲染群組號碼，渲染群組號碼越小，在Fly2引擎會優先渲染
+
+4. 使用 Fly2 Character 輸出 Plugins
+   - Fly2 會輸出一個 .cwa 檔案記錄人物 Body 與 Bone 資料以及相關檔案名稱與作
+      用，同時輸出一個 .cwc 記錄人物骨架、皮膚與配件的關係
+   - .cwk 是記錄骨架資料與所有動作的資料
+
+   - 可在 Max 物件 User Defined Property 內鍵入輸出指令，常用的指令如下 :
+      . Link 指令 : 表示本物件是配件
+      . Geometry 指令 : 輸出骨頭的模型資料
+      . Blendshape 指令 : 以 BlendShape 方式輸出該物件
+      . Reference 指令 : 不輸出該物件資料，表示該物件是編輯時的參考物件
+      . Weight 指令 : 指定該物件皮膚變形之最多的骨頭數量
+      . VA 指令 : 以頂點動畫 (Vertex Animation) 輸出物件的動態資料
+      . Pose 指令 : 定義動作的編號與起始與結束的 Frame 數，範例 : Pose 0 125 144 
+        是指動作 0 是從第 125 Frame 到 144 Frame
+      . Colorkey 指令 : 指該物件貼圖使用特定 Colorkey 縷空顏色，範例 : 使用紅
+        色為縷空色 Colorkey 255 0 0 
+      . Both 指令 : 輸出兩面三角面
+      . RG 指令 : 指定物件渲染的群組關係，RG指令須加上數字指定輸出物件的
+        渲染群組號碼，渲染群組號碼越小，在Fly2引擎會優先渲染
+      . FOV 指令 : 指定輸出攝影機FOV變焦動畫

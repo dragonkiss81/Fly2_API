@@ -1,0 +1,15 @@
+# This shader implements Phong shading with texture
+# C.Wang 0518, 2005
+#
+
+Effect TextShader.fx
+
+VertexType position texture 1 2 ; the vertex format
+
+Technique 1
+   0 TextShader 1 colorMap 0 0       ; Tech 0 Name numTex (texNameInshader iTex iLayer)
+   
+Constant 3
+   0 E Matrix LocalToScreen mWVP
+   1 E Data  0  TextColor     4
+   2 E BeTexture 0 beColormap

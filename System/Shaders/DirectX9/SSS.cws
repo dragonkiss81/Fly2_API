@@ -1,0 +1,36 @@
+# This shader implements Image-based Lighting for 
+# Phong Reflection Model with Sub-surface scattering
+# C.Wang 0624, 2015
+#
+
+# attach  the shader file
+Effect SSS.fx
+
+# vertex declaration
+VertexType position normal texture 2 2 4 ; the vertex format
+
+# techniques
+Technique 4
+   0 Phong_IM_SSS_AO    3 colorMap C 0 depthMap 0 1 backLightMap 0 2
+   1 Phong_IM_SSS       3 colorMap C 0 depthMap 0 1 backLightMap 0 2
+   2 CalculateDistance  0
+   3 BlurImage          1 colorMap 0 0
+
+# constants   
+Constant 15
+   0 E Matrix LocalToScreen mWVP
+   1 E Matrix Global mWorld
+   2 E Matrix LocalToView mWV
+   3 E Camera Position cam
+   4 E Material Diffuse matDif
+   5 E Material Specular matSpe
+   6 E Light ProbeDiffuse         probeDiffuse
+   7 E Light ProbeSpecular        probeSpecular
+   8 E Light BeProbeDiffuse       beProbeDiffuse
+   9 E Light BeProbeSpecular      beProbeSpecular
+  10 E BeTexture 0 beColorMap
+  11 E BeTexture 1 beDepthMap
+  12 E BeTexture 2 beBackLightMap
+  13 E Material fData 0 pixelSize   2  ByTech 1 3
+  14 E Material fData 2 fIteration  1  ByTech 1 3
+

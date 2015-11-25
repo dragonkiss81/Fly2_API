@@ -1,0 +1,56 @@
+1. 安裝 Fly2 模型與人物美術資料 3ds Max 2012 輸出(Export) Plugins
+   - 將 Cw3Exporter.dle 與 CwaExporter.dle 拷貝至 3ds Max 2012 安裝目錄
+      下的 plugins 目錄
+   - Cw3Exporter.dle 是模型或場景輸出Plugin，可輸出3D模型檔案 (.cw3) 與
+      場景檔案 (.cwn)
+   - CwaExporter.dle 是人物角色輸出Plugin，可輸出人物角色檔案 (.cwa) 
+      與相關資料檔案 (.cwc, .cwk, .cw3)
+
+2. 使用 Fly2 模型輸出 Plugins
+   - 點擊/打開 Max2012 Logo 選單 (最左上方)
+   - 點擊 Export 選項以打開 "Select File to Export" 對話框
+   - 在"存檔類型" 選項，選擇 "Fly2 ASCII Models (*.cwn)
+   - 選擇並前往欲存檔之目錄
+   - 輸入檔名
+   - 點擊 "存檔" Button 完成輸出
+   - Fly2 會將所有 Max 物件輸出成獨立的 .cw3 模型檔案，並輸出一個 .cwn 檔
+      案紀錄所有物件的關係
+   - 可在 Max 物件 User Defined Property 內鍵入輸出指令，常用的指令如下 :
+      . Motion 指令 : 輸出物件 Animation 資料，內建是輸出平移與旋轉資料
+      . Reference 指令 : 不輸出該物件資料，表示該物件是編輯時的參考物件
+      . VA : 以頂點動畫 (Vertex Animation) 輸出物件的動態資料
+      . Colorkey 指令 : 指該物件貼圖使用特定 Colorkey 縷空顏色，範例 : 使用紅
+        色為縷空色 Colorkey 255 0 0 
+      . Both 指令 : 輸出兩面三角面
+      . Scale 指令 : 輸出物件 Scale Animation 資料，內建是不輸出Scale資料
+      . UV 指令 : 輸出物件的貼圖座標動畫，範例 : UV 0.1 0.0 指貼圖座標每次
+        會平移 (0.1, 0.0)
+      . RG 指令 : 指定物件渲染的群組關係，RG指令須加上數字指定輸出物件的
+        渲染群組號碼，渲染群組號碼越小，在Fly2引擎會優先渲染
+
+3. 使用 Fly2 人物輸出 Plugins
+   - 點擊/打開 Max2012 Logo 選單 (最左上方)
+   - 點擊 Export 選項以打開 "Select File to Export" 對話框
+   - 在"存檔類型" 選項，選擇 "Fly2 Characters (*.cwa)
+   - 選擇並前往欲存檔之目錄
+   - 輸入檔名
+   - 點擊 "存檔" Button 完成輸出
+   - Fly2 會輸出一個 .cwa 檔案記錄人物 Body 與 Bone 資料以及相關檔案名稱與作
+      用，同時輸出一個 .cwc 記錄人物骨架、皮膚與配件的關係
+   - .cwk 是記錄骨架資料與所有動作的資料
+
+   - 可在 Max 物件 User Defined Property 內鍵入輸出指令，常用的指令如下 :
+      . Link 指令 : 表示本物件是配件
+      . Geometry 指令 : 輸出骨頭的模型資料
+      . Blendshape 指令 : 以 BlendShape 方式輸出該物件
+      . Reference 指令 : 不輸出該物件資料，表示該物件是編輯時的參考物件
+      . Weight 指令 : 指定該物件皮膚變形之最多的骨頭數量
+      . VA 指令 : 以頂點動畫 (Vertex Animation) 輸出物件的動態資料
+      . Pose 指令 : 定義動作的編號與起始與結束的 Frame 數，範例 : Pose 0 125 144 
+        是指動作 0 是從第 125 Frame 到 144 Frame
+      . Colorkey 指令 : 指該物件貼圖使用特定 Colorkey 縷空顏色，範例 : 使用紅
+        色為縷空色 Colorkey 255 0 0 
+      . Both 指令 : 輸出兩面三角面
+      . RG 指令 : 指定物件渲染的群組關係，RG指令須加上數字指定輸出物件的
+        渲染群組號碼，渲染群組號碼越小，在Fly2引擎會優先渲染
+      . FOV 指令 : 指定輸出攝影機FOV變焦動畫

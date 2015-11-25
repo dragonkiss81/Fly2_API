@@ -1,0 +1,23 @@
+# C.Wang 0915, 2014
+#
+
+Effect SimpleImageProcess.fx
+
+VertexType position texture 1 2
+
+Technique 9
+   0 ScaleImage 1 colorMap 0, 0
+   1 GrayColor 1 colorMap 0 0
+   2 SharpenShader 1 colorMap 0 0
+   3 GaussX5 1 gaussianColorMap 0 0
+   4 GaussY5 1 gaussianColorMap 0 0
+   5 ImageSubtract 2 colorMapA 0 0 colorMapB 0 1
+   6 LaplacianFilter 1 colorMap 0 0
+   7 ImageAdd 2 colorMapA 0 0 colorMapB 0 1
+   8 ImageFilterMultiply 2 colorMapA 0 0 colorMapB 0 1
+   
+Constant 4
+   0 E Matrix LocalToScreen WorldViewProj
+   1 E Material Diffuse     dif
+   2 E Material Data 0      texSize     2
+   3 E Material Data 2      threshold
