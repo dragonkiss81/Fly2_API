@@ -11,12 +11,15 @@ member       | Lin Sheng Hsuan, Cheng Yun Chung, 唐若曦, 楊喻涵
 ------------------
 ### B. Goal ###
 
-1. merge the Lin code and the chung code 
+1. merge Lin code and chung code.
+2. refactor the code , improve scalability.
+	- using MACRO
+	- using Class and function
 
 ------------------
 ### C. Progress Report ###
 
-##### 1. hw3 : implement feature
+##### 1. implement feature
 
 - [complete]
 	- set smooth number
@@ -25,11 +28,12 @@ member       | Lin Sheng Hsuan, Cheng Yun Chung, 唐若曦, 楊喻涵
 	- life class //chung
 	- do not "die" again //lin
 	- attack scope setting //lin
-- [bug]
 	- do a complete action when press a hotkey //lin
+- [bug]
+	- robber damage action bug
 
 
-##### 2. hw3 : action parameter
+##### 2. action parameter
 
 - General Actions
 	- Run 
