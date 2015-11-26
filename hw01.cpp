@@ -29,6 +29,7 @@ using namespace std;
 #define CALLIBRATION 1.0f
 #define SMOOTHINESS 16
 #define NUM_OF_BADGUYS 10
+#define NUM_OF_BOSS 2 
 
 #define HATKRANGE 100
 #define NATK1RANGE 100
@@ -64,7 +65,9 @@ public:
 	int blood_remain;
 	int mana_total;
 	int mana_remain;
-}; vector<ACTNUM> badguyID(NUM_OF_BADGUYS);
+}; 
+vector<ACTNUM> badguyID(NUM_OF_BADGUYS);
+vector<ACTNUM> BossID(NUM_OF_BOSS);
 
 ACTNUM::ACTNUM() {
 	blood_total = 1024;
@@ -103,14 +106,20 @@ void ActAction(ACTNUM &actsystem, char* act, int damage_num)
 
 	actsystem.blood_remain = actsystem.blood_remain - damage_num;
 
-	if (actsystem.blood_remain > 0)
+	if (actsystem.blood_remain > 0 )
+	{
+		if(act == "Donzo") act = "idle";
 		cur_actor_curPoseID = cur_actor.GetBodyAction(NULL, act);
+	}
 	else
 	{
-		float fDir[3], uDir[3];
-		fDir[0] = 1.0f; fDir[1] = 1.0f; fDir[2] = 0.0f;
-		uDir[0] = 1.0f; uDir[1] = 1.0f; uDir[2] = 0.0f;
-		cur_actor.SetDirection(fDir, uDir);
+		if(act != "Donzo")
+		{
+			float fDir[3], uDir[3];
+			fDir[0] = 1.0f; fDir[1] = 1.0f; fDir[2] = 0.0f;
+			uDir[0] = 1.0f; uDir[1] = 1.0f; uDir[2] = 0.0f;
+			cur_actor.SetDirection(fDir, uDir);
+		}
 		cur_actor_curPoseID = cur_actor.GetBodyAction(NULL, "Die");
 	}
 	cur_actor.SetCurrentAction(NULL, 0, cur_actor_curPoseID);
@@ -236,6 +245,16 @@ void FyMain(int argc, char **argv)
 		ActorGen(scene, badguyID[i], "Robber02","CombatIdle", temp_pos, temp_fDir, uDir);
 	}
 
+	for (int i = 0; i < NUM_OF_BOSS; i++)
+	{
+		temp_pos[0] = pos[0] + 30 * (rand()%8);
+		temp_pos[1] = pos[1] + 30 * (rand()%8);
+		temp_pos[2] = pos[2] + 30 * (rand()%8);
+		temp_fDir[0] = -1.0f; temp_fDir[1] = -1.0f; temp_fDir[2] = 1.0f;
+
+		ActorGen(scene, BossID[i], "Donzo2","CombatIdle", temp_pos, temp_fDir, uDir);
+	}
+
 	// hw2 initial : set camera position
 	actor.GetPosition(pos);
 	pos[0] = pos[0] - SHORTDIST * fDir[0];
@@ -312,18 +331,33 @@ void GameAI(int skip)
 	for (int i = 0; i < NUM_OF_BADGUYS; i++)
 	{
 		cur_actor.ID(badguyID[i].actorID);
-		ACTIONid CombatIdleID = cur_actor.GetBodyAction(NULL, "CombatIdle");
 		
-		if ( !cur_actor.Play(ONCE, (float)skip, FALSE, TRUE))
+		if ( cur_actor.Play(ONCE, (float)skip, FALSE, TRUE)==0)
 		{
 			if(badguyID[i].blood_remain > 0) 
 			{
+				ACTIONid CombatIdleID = cur_actor.GetBodyAction(NULL, "CombatIdle");
 				cur_actor.SetCurrentAction(NULL, 0, CombatIdleID, 10.0f);
 			}
 		}
 
 	}
 
+	for (int i = 0; i < NUM_OF_BOSS; i++)
+	{
+		cur_actor.ID(BossID[i].actorID);
+		ACTIONid cur_action = cur_actor.GetCurrentAction(NULL,0);
+		ACTIONid DieID = cur_actor.GetBodyAction(NULL, "Die");
+		ACTIONid IdleID = cur_actor.GetBodyAction(NULL, "Idle");
+	
+		if(cur_action == DieID)
+			cur_actor.Play(ONCE, (float)skip, FALSE, TRUE);
+		else if (cur_action == IdleID)	
+			cur_actor.Play(LOOP, (float)skip, FALSE, TRUE);
+		else if(BossID[i].blood_remain > 0) 
+			cur_actor.SetCurrentAction(NULL, 0, IdleID, 10.0f);
+					
+	}
 
 	// Camera's position and direction as a standard for character's location setting
 	FnCamera camera;
@@ -646,6 +680,18 @@ void Movement(BYTE code, BOOL4 value)
 
 				}
 			}
+
+			for (int i = 0; i < NUM_OF_BOSS; i++)
+			{
+				badguy.ID(BossID[i].actorID);
+				badguy.GetPosition(badguyPos);
+
+				if (FyDistance(badguyPos, actorPos) < HATKRANGE && BossID[i].blood_remain > 0)
+				{
+					ActAction(BossID[i], "Donzo", HATKDAMAGE);
+				}
+			}
+
 		}
 
 		if (FyCheckHotKeyStatus(FY_W) && dirCount % SMOOTHINESS == 0)
@@ -661,6 +707,17 @@ void Movement(BYTE code, BOOL4 value)
 				if (FyDistance(badguyPos, actorPos) < NATK1RANGE)
 				{
 					ActAction(badguyID[i], "Damage2", NATK1DAMAGE);
+				}
+			}
+
+			for (int i = 0; i < NUM_OF_BOSS; i++)
+			{
+				badguy.ID(BossID[i].actorID);
+				badguy.GetPosition(badguyPos);
+
+				if (FyDistance(badguyPos, actorPos) < NATK1RANGE && BossID[i].blood_remain > 0)
+				{
+					ActAction(BossID[i], "Donzo", NATK1DAMAGE);
 				}
 			}
 
@@ -681,6 +738,18 @@ void Movement(BYTE code, BOOL4 value)
 					ActAction(badguyID[i], "Damage2", NATK2DAMAGE);
 				}
 			}
+
+			for (int i = 0; i < NUM_OF_BOSS; i++)
+			{
+				badguy.ID(badguyID[i].actorID);
+				badguy.GetPosition(badguyPos);
+
+				if (FyDistance(badguyPos, actorPos) < NATK2RANGE && BossID[i].blood_remain > 0)
+				{
+					ActAction(BossID[i], "Donzo", NATK2DAMAGE);
+				}
+			}
+
 
 		}
 		if (FyCheckHotKeyStatus(FY_UP) && dirCount % SMOOTHINESS == 0)
