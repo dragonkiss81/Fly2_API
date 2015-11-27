@@ -1,4 +1,4 @@
-# Game Programming Project : using Fly2_API 
+Game Programming Project : using Fly2_API 
 ==============================
 
 ### A. Basic Information ###
