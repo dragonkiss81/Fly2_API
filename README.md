@@ -15,10 +15,7 @@ member       | Lin Sheng Hsuan, Cheng Yun Chung, 唐若曦, 楊喻涵
 
 clone this repository at C:/
 
-"""
 	git clone https://github.com/dragonkiss81/spf13-vim.git
-
-"""
 
 ##### 2. Environment setting
 
