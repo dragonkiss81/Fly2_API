@@ -243,7 +243,7 @@ void GameAI(int skip)
 			if(badguyID[i].blood_remain > 0) 
 			{
 				ACTIONid CombatIdleID = cur_actor.GetBodyAction(NULL, "CombatIdle");
-				cur_actor.SetCurrentAction(NULL, 0, CombatIdleID, 10.0f);
+				cur_actor.SetCurrentAction(NULL, 0, CombatIdleID);
 			}
 		}
 

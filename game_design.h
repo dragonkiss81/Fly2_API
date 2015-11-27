@@ -1,5 +1,5 @@
-#define SHORTDIST 400
-#define LONGDIST 500
+#define SHORTDIST 500
+#define LONGDIST 600
 #define HEIGHTBOUND 500
 #define HEIGHTOFFSET 70
 #define ACTORPROBE 5
