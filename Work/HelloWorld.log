@@ -1,20 +1,11 @@
-﻿Build started 2015/11/26 下午 11:30:39.
+﻿Build started 2015/11/26 下午 11:50:05.
      1>Project "C:\Fly2_API\HelloWorld.vcxproj" on node 2 (Build target(s)).
      1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V120\Microsoft.CppBuild.targets(363,5): warning MSB8004: Intermediate Directory does not end with a trailing slash.  This build instance will add the slash as it is required to allow proper evaluation of the Intermediate Directory.
      1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V120\Microsoft.CppBuild.targets(364,5): warning MSB8004: Output Directory does not end with a trailing slash.  This build instance will add the slash as it is required to allow proper evaluation of the Output Directory.
-     1>ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /I"C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include" /I"C:\Program Files (x86)\OpenAL 1.1 SDK\include" /IC:\Fly2_API\Include /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _CRT_SECURE_NO_WARNINGS /D _DEBUG /D _WINDOWS /D FLY2_DX9 /D FLY2_OPENAL /D MULTICORE /D FLY2 /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Work\\" /Fd"Work\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt hw01.cpp
-         hw01.cpp
-     1>c:\fly2_api\game_design.h(69): warning C4101: 'cur_actor_idleID' : unreferenced local variable
-     1>c:\fly2_api\hw01.cpp(177): warning C4305: 'initializing' : truncation from 'double' to 'float'
-     1>c:\fly2_api\hw01.cpp(178): warning C4305: 'initializing' : truncation from 'double' to 'float'
-     1>c:\fly2_api\hw01.cpp(560): warning C4101: 'badguyfDir' : unreferenced local variable
-     1>c:\fly2_api\hw01.cpp(560): warning C4101: 'badguyuDir' : unreferenced local variable
-       Link:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"work\HelloWorld.exe" /INCREMENTAL /NOLOGO /LIBPATH:"C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Lib\x86" /LIBPATH:"C:\Program Files (x86)\OpenAL 1.1 SDK\libs\Win32" /LIBPATH:C:\Fly2_API\LibWin32 d3d9.lib d3dx9.lib OpenAL32.lib XInput.lib LibFly2DX9W32D.lib strmiids.lib winmm.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"work\HelloWorld.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"work\HelloWorld.lib" /MACHINE:X86 Work\hw01.obj
+     1>Link:
          HelloWorld.vcxproj -> C:\Fly2_API\work\HelloWorld.exe
      1>Done Building Project "C:\Fly2_API\HelloWorld.vcxproj" (Build target(s)).
 
 Build succeeded.
 
-Time Elapsed 00:00:00.65
+Time Elapsed 00:00:00.03
