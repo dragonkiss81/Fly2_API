@@ -20,6 +20,8 @@ using namespace std;
 
 vector<ACTNUM> badguyID(NUM_OF_BADGUYS);
 vector<ACTNUM> BossID(NUM_OF_BOSS);
+ACTNUM LyubuID;
+
 
 VIEWPORTid vID;                 // the major viewport
 SCENEid sID;                    // the 3D scene
@@ -30,13 +32,9 @@ ACTIONid NormalAttack1ID, NormalAttack2ID, HeavyAttack1ID;
 ROOMid terrainRoomID = FAILED_ID;
 TEXTid textID = FAILED_ID;
 
-// Blood System Class declaration
-// some globals
 int frame = 0;
 int oldX, oldY, oldXM, oldYM, oldXMM, oldYMM;
 int dirCount = 0, dirState = 0;
-
-// memorize status
 int idle_count = 0;
 int status = 0;
 
@@ -64,10 +62,8 @@ C.Wang 1010, 2014
 -------------------*/
 void FyMain(int argc, char **argv)
 {
-	// create a new world
 	BOOL4 beOK = FyStartFlyWin32("NTU@2015 Homework #02 - Use Fly2", 0, 0, 1024, 768, FALSE);
 
-	// setup the data searching paths
 	FySetShaderPath("Data\\NTU6\\Shaders");
 	FySetModelPath("Data\\NTU6\\Scenes");
 	FySetTexturePath("Data\\NTU6\\Scenes\\Textures");
@@ -143,9 +139,9 @@ void FyMain(int argc, char **argv)
 
 	for (int i = 0; i < NUM_OF_BADGUYS; i++)
 	{
-		temp_pos[0] = pos[0] + 30 * (rand()%8);
-		temp_pos[1] = pos[1] + 30 * (rand()%8);
-		temp_pos[2] = pos[2] + 30 * (rand()%8);
+		temp_pos[0] = pos[0] + 30*(rand()%20) - 300;
+		temp_pos[1] = pos[1] + 30*(rand()%20) - 300;
+		temp_pos[2] = pos[2] + 30*(rand()%20) - 300;
 		temp_fDir[0] = -1.0f; temp_fDir[1] = -1.0f; temp_fDir[2] = 1.0f;
 
 		ActorGen(scene, terrainRoomID, badguyID[i], "Robber02", "CombatIdle", temp_pos, temp_fDir, uDir);
@@ -218,35 +214,44 @@ void FyMain(int argc, char **argv)
 --------------------------------------------------------------*/
 void GameAI(int skip)
 {
-	// play character pose
 	FnCharacter actor;
 	FnCharacter cur_actor;
 
 	actor.ID(actorID);
 
 	if (curPoseID == runID || curPoseID == idleID)
-	{
 		actor.Play(LOOP, (float)skip, FALSE, TRUE);
-	}
-
 	else if ( actor.Play(ONCE, (float)skip, FALSE, TRUE) == 0)
-	{
 		actor.SetCurrentAction(NULL, 0, idleID, 10.0f);
-	}
 
-	for (int i = 0; i < NUM_OF_BADGUYS; i++)
+
+	FnObject terrain;
+	terrain.ID(tID);
+	LyubuID.actorID = actorID;
+
+	for(int i = 0; i < NUM_OF_BADGUYS; i++)
 	{
 		cur_actor.ID(badguyID[i].actorID);
 		
-		if ( cur_actor.Play(ONCE, (float)skip, FALSE, TRUE)==0)
+		if(badguyID[i].blood_remain > 0)
 		{
-			if(badguyID[i].blood_remain > 0) 
+			bool checkMove = MoveToTargetLocation(badguyID[i], LyubuID, terrain);
+
+			if(cur_actor.Play(ONCE, (float)skip, FALSE, TRUE)==0) 
 			{
-				ACTIONid CombatIdleID = cur_actor.GetBodyAction(NULL, "CombatIdle");
-				cur_actor.SetCurrentAction(NULL, 0, CombatIdleID);
+				
+				if( checkMove )
+				{
+					ACTIONid CombatIdleID = cur_actor.GetBodyAction(NULL, "Run");
+					cur_actor.SetCurrentAction(NULL, 0, CombatIdleID);
+				}
+				else
+				{
+					ACTIONid CombatIdleID = cur_actor.GetBodyAction(NULL, "NormalAttack2");
+					cur_actor.SetCurrentAction(NULL, 0, CombatIdleID);
+				}	
 			}
 		}
-
 	}
 
 	for (int i = 0; i < NUM_OF_BOSS; i++)
@@ -276,8 +281,7 @@ void GameAI(int skip)
 	camerafDir[2] = 0; // Guaranteed up direction be 1
 	camerauDir[0] = 0; camerauDir[1] = 0; camerauDir[2] = 1;
 
-	FnObject terrain;
-	terrain.ID(tID);
+	
 
 	float dir[3], origin[3], actorfDir[3], actoruDir[3];// origin is the actor's position      
 	actor.GetPosition(origin);
