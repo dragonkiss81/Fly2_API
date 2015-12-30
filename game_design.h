@@ -40,7 +40,47 @@ public:
 	int blood_remain;
 	int mana_total;
 	int mana_remain;
+
+	float pos[3];
+	float velocity[2];
 }; 
+
+
+float* computeSeparation(ACTNUM &agent,vector<ACTNUM> &agentArray, float* curPos)
+{
+	int neighborCount = 0;
+	for(int i = 0; i < agents.size(); i++ ) 
+	{
+		if (agent.actorID != agentArray.actorID)
+		{
+			if (FyDistance(chcurPos, tarcurPos) < 300)
+			{
+				curPos[0] += agentArray[i].pos[0] - agent.pos[0];
+				curPos[1] +=  agentArray[i].pos[1] - agent.pos[1];
+				neighborCount++;
+			}
+		}
+	}
+
+	if (neighborCount == 0)
+		return curPos;
+	else
+	{
+		curPos[0] /= neighborCount;
+		curPos[1] /= neighborCount;
+		curPos[0] *= -1;
+		curPos[1] *= -1;
+		
+		float len = sqrt(curPos[0]*curPos[0] + curPos[1]*curPos[1]);
+		curPos[0] = curPos[0] / len;
+		curPos[1] = curPos[1] / len;
+		
+		return curPos;
+	}
+}
+
+
+
 
 bool MoveToTargetLocation(ACTNUM &Chase, ACTNUM &Target, FnObject terrain){
 

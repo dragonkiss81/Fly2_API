@@ -259,15 +259,27 @@ void GameAI(int skip)
 		cur_actor.ID(BossID[i].actorID);
 		ACTIONid cur_action = cur_actor.GetCurrentAction(NULL,0);
 		ACTIONid DieID = cur_actor.GetBodyAction(NULL, "Die");
-		ACTIONid IdleID = cur_actor.GetBodyAction(NULL, "Idle");
 	
 		if(cur_action == DieID)
 			cur_actor.Play(ONCE, (float)skip, FALSE, TRUE);
-		else if (cur_action == IdleID)	
-			cur_actor.Play(LOOP, (float)skip, FALSE, TRUE);
-		else if(BossID[i].blood_remain > 0) 
-			cur_actor.SetCurrentAction(NULL, 0, IdleID, 10.0f);
-					
+		else if (BossID[i].blood_remain > 0)
+		{
+			bool checkMove = MoveToTargetLocation(BossID[i], LyubuID, terrain);
+
+			if(cur_actor.Play(ONCE, (float)skip, FALSE, TRUE)==0) 
+			{
+				if (checkMove)
+				{
+					ACTIONid CombatIdleID = cur_actor.GetBodyAction(NULL, "Run");
+					cur_actor.SetCurrentAction(NULL, 0, CombatIdleID);
+				}
+				else
+				{
+					ACTIONid CombatIdleID = cur_actor.GetBodyAction(NULL, "HeavyAttack");
+					cur_actor.SetCurrentAction(NULL, 0, CombatIdleID);
+				}
+			}
+		}		
 	}
 
 	// Camera's position and direction as a standard for character's location setting
