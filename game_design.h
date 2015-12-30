@@ -1,3 +1,4 @@
+#include <vector>
 #define SHORTDIST 500
 #define LONGDIST 600
 #define HEIGHTBOUND 500
@@ -46,14 +47,14 @@ public:
 }; 
 
 
-float* computeSeparation(ACTNUM &agent,vector<ACTNUM> &agentArray, float* curPos)
+float* computeSeparation(ACTNUM agent, std::vector<ACTNUM> agentArray, float* curPos)
 {
 	int neighborCount = 0;
-	for(int i = 0; i < agents.size(); i++ ) 
+	for(int i = 0; i < agentArray.size(); i++ ) 
 	{
-		if (agent.actorID != agentArray.actorID)
+		if (agent.actorID != agentArray[i].actorID)
 		{
-			if (FyDistance(chcurPos, tarcurPos) < 300)
+			if (FyDistance(agent.pos, agentArray[i].pos) < 300)
 			{
 				curPos[0] += agentArray[i].pos[0] - agent.pos[0];
 				curPos[1] +=  agentArray[i].pos[1] - agent.pos[1];
