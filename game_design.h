@@ -10,8 +10,8 @@
 #define CAMERASPEED 10.0f
 #define CALLIBRATION 1.0f
 #define SMOOTHINESS 16
-#define NUM_OF_BADGUYS 6
-#define NUM_OF_BOSS 2 
+#define NUM_OF_BADGUYS 3
+#define NUM_OF_BOSS 1
 
 #define HATKRANGE 100
 #define NATK1RANGE 100
@@ -24,8 +24,9 @@
 #define NATK2DAMAGE 150
 
 #define GUY_SPEED 3.0f
-#define GUY_ATTACK_DIST 100.0f
-#define GUY_ROTATE 5.0f
+#define GUY_ATTACK_DIST 60.0f
+#define GUY_SCOPE 1000
+#define SEP_WEIGHT 60.0f
 
 class ACTNUM {
 public:
@@ -41,67 +42,70 @@ public:
 	int blood_remain;
 	int mana_total;
 	int mana_remain;
-
-	float pos[3];
-	float velocity[2];
 }; 
 
-
-float* computeSeparation(ACTNUM agent, std::vector<ACTNUM> agentArray, float* curPos)
+void computeSeparation(ACTNUM meGuy, std::vector<ACTNUM> otherGuy, float* vec)
 {
+	FnCharacter meActor;
+	FnCharacter otherActor;
+	float mePos[3];
+	float otherPos[3];
+
+	meActor.ID(meGuy.actorID);
+	meActor.GetPosition(mePos);
+
 	int neighborCount = 0;
-	for(int i = 0; i < agentArray.size(); i++ ) 
+	for(int i = 0; i < otherGuy.size(); i++ ) 
 	{
-		if (agent.actorID != agentArray[i].actorID)
+		if (meGuy.actorID != otherGuy[i].actorID)
 		{
-			if (FyDistance(agent.pos, agentArray[i].pos) < 300)
+			otherActor.ID(otherGuy[i].actorID);
+			otherActor.GetPosition(otherPos);
+
+			if (FyDistance(mePos, otherPos) < GUY_SCOPE)
 			{
-				curPos[0] += agentArray[i].pos[0] - agent.pos[0];
-				curPos[1] +=  agentArray[i].pos[1] - agent.pos[1];
+				vec[0] += (otherPos[0] - mePos[0]);
+				vec[1] += (otherPos[1] - mePos[1]);
 				neighborCount++;
 			}
 		}
 	}
 
-	if (neighborCount == 0)
-		return curPos;
-	else
+	if (neighborCount != 0)
 	{
-		curPos[0] /= neighborCount;
-		curPos[1] /= neighborCount;
-		curPos[0] *= -1;
-		curPos[1] *= -1;
+		vec[0] /= neighborCount;
+		vec[1] /= neighborCount;
+		vec[0] *= -1;
+		vec[1] *= -1;
 		
-		float len = sqrt(curPos[0]*curPos[0] + curPos[1]*curPos[1]);
-		curPos[0] = curPos[0] / len;
-		curPos[1] = curPos[1] / len;
-		
-		return curPos;
+		float len = sqrt(vec[0]*vec[0] + vec[1]*vec[1]);
+		vec[0] = vec[0] / len;
+		vec[1] = vec[1] / len;
 	}
 }
 
-
-
-
-bool MoveToTargetLocation(ACTNUM &Chase, ACTNUM &Target, FnObject terrain){
+bool MoveToTargetLocation(ACTNUM &chase, ACTNUM &target, std::vector<ACTNUM> &otherGuy, FnObject terrain){
 
 	FnCharacter actorChase, actorTarget;
 
-	actorChase.ID(Chase.actorID);
-	actorTarget.ID(Target.actorID);
+	actorChase.ID(chase.actorID);
+	actorTarget.ID(target.actorID);
 
 	float chPos[3], chFDir[3], chUDir[3];
 	float tarPos[3], tarFDir[3], tarUDir[3];
 	float newFDir[3];
 	float probeDir[3];
+	float separation[2] = {0};
 
 	actorChase.GetPosition(chPos);
 	actorTarget.GetPosition(tarPos);
 	actorChase.GetDirection(chFDir, chUDir);
 	actorTarget.GetDirection(tarFDir, tarUDir);
 
-	newFDir[0] = tarPos[0] - chPos[0] ;
-	newFDir[1] = tarPos[1] - chPos[1] ;
+	computeSeparation(chase, otherGuy, separation);
+
+	newFDir[0] = tarPos[0] - chPos[0] + separation[0]*SEP_WEIGHT;
+	newFDir[1] = tarPos[1] - chPos[1] + separation[1]*SEP_WEIGHT;
 	newFDir[2] = 0;
 
 	probeDir[0] = chFDir[0] / ACTORPROBE;
@@ -110,7 +114,7 @@ bool MoveToTargetLocation(ACTNUM &Chase, ACTNUM &Target, FnObject terrain){
 
 	actorChase.SetDirection(newFDir, chUDir);
 
-	if(terrain.HitTest(chPos, probeDir) > 0  &&  FyDistance(chPos, tarPos) > GUY_ATTACK_DIST)
+	if (terrain.HitTest(chPos, probeDir) > 0 && FyDistance(chPos, tarPos) > GUY_ATTACK_DIST)
 	{
 		actorChase.MoveForward(GUY_SPEED, FALSE, FALSE, 0, FALSE);
 		return 1;

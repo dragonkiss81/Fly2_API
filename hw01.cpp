@@ -140,8 +140,8 @@ void FyMain(int argc, char **argv)
 	for (int i = 0; i < NUM_OF_BADGUYS; i++)
 	{
 		temp_pos[0] = pos[0] + 30*(rand()%20) - 300;
-		temp_pos[1] = pos[1] + 30*(rand()%20) - 300;
-		temp_pos[2] = pos[2] + 30*(rand()%20) - 300;
+		temp_pos[1] = pos[1] + 30 * (rand() % 20) - 300;
+		temp_pos[2] = pos[2] + 30 * (rand() % 20) - 300;
 		temp_fDir[0] = -1.0f; temp_fDir[1] = -1.0f; temp_fDir[2] = 1.0f;
 
 		ActorGen(scene, terrainRoomID, badguyID[i], "Robber02", "CombatIdle", temp_pos, temp_fDir, uDir);
@@ -149,9 +149,9 @@ void FyMain(int argc, char **argv)
 
 	for (int i = 0; i < NUM_OF_BOSS; i++)
 	{
-		temp_pos[0] = pos[0] + 30 * (rand()%8);
-		temp_pos[1] = pos[1] + 30 * (rand()%8);
-		temp_pos[2] = pos[2] + 30 * (rand()%8);
+		temp_pos[0] = pos[0] + 30 * (rand() % 8);
+		temp_pos[1] = pos[1] + 30 * (rand() % 8);
+		temp_pos[2] = pos[2] + 30 * (rand() % 8);
 		temp_fDir[0] = -1.0f; temp_fDir[1] = -1.0f; temp_fDir[2] = 1.0f;
 
 		ActorGen(scene, terrainRoomID, BossID[i], "Donzo2", "CombatIdle", temp_pos, temp_fDir, uDir);
@@ -235,7 +235,7 @@ void GameAI(int skip)
 		
 		if(badguyID[i].blood_remain > 0)
 		{
-			bool checkMove = MoveToTargetLocation(badguyID[i], LyubuID, terrain);
+			bool checkMove = MoveToTargetLocation(badguyID[i], LyubuID, badguyID, terrain);
 
 			if(cur_actor.Play(ONCE, (float)skip, FALSE, TRUE)==0) 
 			{
@@ -264,7 +264,7 @@ void GameAI(int skip)
 			cur_actor.Play(ONCE, (float)skip, FALSE, TRUE);
 		else if (BossID[i].blood_remain > 0)
 		{
-			bool checkMove = MoveToTargetLocation(BossID[i], LyubuID, terrain);
+			bool checkMove = MoveToTargetLocation(BossID[i], LyubuID, BossID, terrain);
 
 			if(cur_actor.Play(ONCE, (float)skip, FALSE, TRUE)==0) 
 			{
