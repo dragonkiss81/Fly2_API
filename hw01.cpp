@@ -40,6 +40,8 @@ SCENEid sID2;                // the 2D scene
 FnSprite sp;
 OBJECTid spID0 = FAILED_ID;  // the sprite
 
+int picture_count = 1;
+
 
 
 
@@ -203,7 +205,7 @@ void FyMain(int argc, char **argv)
 
 	spID0 = scene.CreateObject(SPRITE);
 	sp.ID(spID0);
-	//showPicture(sp, "talk_mission.jpg", 780, 200 , 10, 10); //showPicture parameter : FnSprite ,imageName, size, position
+	showPicture(sp, "startTalk_1.png", 780, 180 , 10, 10); //showPicture parameter : FnSprite ,imageName, size, position
 
 	// set Hotkeys
 	FyDefineHotKey(FY_ESCAPE, QuitGame, FALSE);  // escape for quiting the game
@@ -218,6 +220,8 @@ void FyMain(int argc, char **argv)
 	FyDefineHotKey(FY_A, Movement, FALSE);       // Turn left with camera rotation
 	FyDefineHotKey(FY_D, Movement, FALSE);		 // Turn right with camera rotation
 	FyDefineHotKey(FY_S, Movement, FALSE);
+
+	FyDefineHotKey(FY_T, Movement, FALSE);   //Talk button
 
 	// define some mouse functions
 	FyBindMouseFunction(LEFT_MOUSE, InitPivot, PivotCam, NULL, NULL);
@@ -816,9 +820,13 @@ void Movement(BYTE code, BOOL4 value)
 		{
 			curPoseID = HeavyAttack1ID;
 		}
-		else
+		else if (!FyCheckHotKeyStatus(FY_T))
 		{
 			curPoseID = runID;
+		}
+		else
+		{
+			curPoseID = idleID;
 		}
 		
 		actor.SetCurrentAction(NULL, 0, curPoseID, 5.0f);
@@ -829,6 +837,31 @@ void Movement(BYTE code, BOOL4 value)
 		actor.SetCurrentAction(NULL, 0, curPoseID, 5.0f);
 	}
 
+
+
+
+
+
+
+
+	if (FyCheckHotKeyStatus(FY_T) && picture_count <= 8)
+	{
+		char str_buf[16];
+		itoa(picture_count, str_buf, 10);
+		string pic_num(str_buf);
+
+		string picture = "startTalk_" + pic_num + ".png";
+		char* chr = strdup(picture.c_str());
+
+		showPicture(sp, chr, 780, 180, 10, 10); //showPicture parameter : FnSprite ,imageName, size, position
+	
+		free(chr);
+
+		picture_count++;
+	}
+	else if (FyCheckHotKeyStatus(FY_T) && picture_count == 9){
+		showPicture(sp, "", 0, 0, 0, 0);
+	}
 
 }
 
