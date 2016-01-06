@@ -1,0 +1,12 @@
+# C.Wang 0605, 2007
+#
+
+Effect Sky_tex_e.fx
+
+VertexType position texture 1 2
+
+Technique 1
+   0 sky_tex 1 colorMap 0 0
+   
+Constant 1
+   0 E Matrix LocalToScreen WorldViewProj

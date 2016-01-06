@@ -1,0 +1,15 @@
+General Actions
+   MoveRight
+   MoveLeft
+   Run
+
+Attack Actions
+   CombatIdle
+   NormalAttack1
+   NormalAttack2
+   HeavyAttack1
+
+Damage Actions
+   Damage1
+   Damage2
+   Dead
