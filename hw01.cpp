@@ -38,9 +38,9 @@ int oldX, oldY, oldXM, oldYM, oldXMM, oldYMM;
 
 SCENEid sID2;                // the 2D scene
 FnSprite sp;
-FnSprite sp_hpFrame;
+FnSprite sp_hpFrame, sp_headLyu, sp_wordLyu, sp_hpBlood, sp_hpMana, sp_deadEnd, sp_trueEnd;
 OBJECTid spID0 = FAILED_ID;
-OBJECTid spID_hpFrame = FAILED_ID;
+OBJECTid spID_hpFrame = FAILED_ID, spID_headLyu = FAILED_ID, spID_wordLyu = FAILED_ID, spID_hpBlood = FAILED_ID, spID_hpMana = FAILED_ID, spID_deadEnd = FAILED_ID, spID_trueEnd = FAILED_ID;
 bool missionWindowStatus = FALSE;
 int picture_count = 1;
 
@@ -162,9 +162,9 @@ void FyMain(int argc, char **argv)
 	*/
 	for (int i = 0; i < NUM_OF_BOSS; i++)
 	{
-		temp_pos[0] = pos[0] + 30 * (rand()%8);
-		temp_pos[1] = pos[1] + 30 * (rand()%8);
-		temp_pos[2] = pos[2] + 30 * (rand()%8);
+		temp_pos[0] = 130.636;  //pos[0] + 30 * (rand()%8);
+		temp_pos[1] = 2707.003; //pos[1] + 30 * (rand()%8);
+		temp_pos[2] = 70.897;   //pos[2] + 30 * (rand()%8);
 		SetValues(temp_fDir, -1.0f, -1.0f, 1.0f);
 
 		ActorGen(scene, terrainRoomID, BossID[i], "Donzo2", "CombatIdle", temp_pos, temp_fDir, uDir);
@@ -214,17 +214,26 @@ void FyMain(int argc, char **argv)
 	sp_hpFrame.ID(spID_hpFrame);
 	showPicture(sp_hpFrame, "hp_line.png", 400, 100, 400, 480);
 
-	spID_hpFrame = scene.CreateObject(SPRITE);
-	sp_hpFrame.ID(spID_hpFrame);
-	showPicture(sp_hpFrame, "hp_blood.png", 250, 10, 500, 510);
+	spID_hpBlood = scene.CreateObject(SPRITE);
+	sp_hpBlood.ID(spID_hpBlood);
 
-	spID_hpFrame = scene.CreateObject(SPRITE);
-	sp_hpFrame.ID(spID_hpFrame);
-	showPicture(sp_hpFrame, "headLyu.png", 80, 80, 475, 520);
+	spID_hpMana = scene.CreateObject(SPRITE);
+	sp_hpMana.ID(spID_hpMana);
+	//showPicture(sp_hpBlood, "hp_blood.png", 250, 10, 500, 510);
 
-	spID_hpFrame = scene.CreateObject(SPRITE);
-	sp_hpFrame.ID(spID_hpFrame);
-	showPicture(sp_hpFrame, "wordLyu.png", 140, 40, 550, 540);
+	spID_headLyu = scene.CreateObject(SPRITE);
+	sp_headLyu.ID(spID_headLyu);
+	showPicture(sp_headLyu, "headLyu.png", 80, 80, 475, 520);
+
+	spID_wordLyu = scene.CreateObject(SPRITE);
+	sp_wordLyu.ID(spID_wordLyu);
+	showPicture(sp_wordLyu, "wordLyu.png", 140, 40, 550, 540);
+
+	spID_deadEnd = scene.CreateObject(SPRITE);
+	sp_deadEnd.ID(spID_deadEnd);
+
+	spID_trueEnd = scene.CreateObject(SPRITE);
+	sp_trueEnd.ID(spID_trueEnd);
 	
 
 
@@ -302,6 +311,7 @@ void GameAI(int skip)
 				{
 					ACTIONid CombatIdleID = cur_actor.GetBodyAction(NULL, "NormalAttack2");
 					cur_actor.SetCurrentAction(NULL, 0, CombatIdleID);
+					LyubuID.blood_remain = LyubuID.blood_remain - GUY_ATTACK;
 				}
 			}
 		}
@@ -330,6 +340,7 @@ void GameAI(int skip)
 				{
 					ACTIONid CombatIdleID = cur_actor.GetBodyAction(NULL, "HeavyAttack");
 					cur_actor.SetCurrentAction(NULL, 0, CombatIdleID);
+					LyubuID.blood_remain = LyubuID.blood_remain - GUY_HEAVY_ATTACK;
 				}
 			}
 		}
@@ -458,6 +469,15 @@ void RenderIt(int skip)
 	vp.Render3D(cID, TRUE, TRUE);
 
 	// render the sprites
+	showPicture(sp_hpBlood, "hp_blood.png", (int) 250 * ((double)LyubuID.blood_remain / LyubuID.blood_total), 8, 500, 514);
+	showPicture(sp_hpMana, "hp_mana.png", (int) 250 * ((double)LyubuID.mana_remain / LyubuID.mana_total), 4, 500, 510);
+
+	if (LyubuID.blood_remain <= 0)
+		showPicture(sp_deadEnd, "dead_end.png", 800, 600, 0, 0);
+
+	if (BossID[0].blood_remain <= 0)
+		showPicture(sp_trueEnd, "true_end.png", 800, 600, 0, 0);
+
 	vp.RenderSprites(sID2, FALSE, TRUE);  // no clear the background but clear the z buffer
 	FySwapBuffers();
 
@@ -689,10 +709,12 @@ void Movement(BYTE code, BOOL4 value)
 	{
 		idle_count++;
 
-		if (FyCheckHotKeyStatus(FY_Q) && dirCount % SMOOTHINESS == 0)
+		if (FyCheckHotKeyStatus(FY_Q) && dirCount % SMOOTHINESS == 0 && LyubuID.mana_remain > 0)
 		{
 			actorPos[0] += actorfDir[0] * HATKOFFSET;
 			actorPos[1] += actorfDir[1] * HATKOFFSET;
+
+			LyubuID.mana_remain = LyubuID.mana_remain - HATKDAMAGE;
 
 			for (int i = 0; i < NUM_OF_BADGUYS; i++)
 			{
@@ -722,13 +744,16 @@ void Movement(BYTE code, BOOL4 value)
 					ActAction(BossID[i], "Donzo", HATKDAMAGE);
 				}
 			}
+		
 
 		}
 
-		if (FyCheckHotKeyStatus(FY_W) && dirCount % SMOOTHINESS == 0)
+		if (FyCheckHotKeyStatus(FY_W) && dirCount % SMOOTHINESS == 0 && LyubuID.mana_remain > 0)
 		{
 			actorPos[0] += actorfDir[0] * NATK1OFFSET;
 			actorPos[1] += actorfDir[1] * NATK1OFFSET;
+
+			LyubuID.mana_remain = LyubuID.mana_remain - NATK1DAMAGE;
 
 			for (int i = 0; i < NUM_OF_BADGUYS; i++)
 			{
@@ -761,10 +786,13 @@ void Movement(BYTE code, BOOL4 value)
 
 		}
 
-		if (FyCheckHotKeyStatus(FY_E) && dirCount % SMOOTHINESS == 0)
+		if (FyCheckHotKeyStatus(FY_E) && dirCount % SMOOTHINESS == 0 && LyubuID.mana_remain > 0)
 		{
 			actorPos[0] += actorfDir[0] * NATK2OFFSET;
 			actorPos[1] += actorfDir[1] * NATK2OFFSET;
+
+
+			LyubuID.mana_remain = LyubuID.mana_remain - NATK2DAMAGE;
 
 			for (int i = 0; i < NUM_OF_BADGUYS; i++)
 			{
@@ -829,19 +857,21 @@ void Movement(BYTE code, BOOL4 value)
 	if (idle_count > 0)
 	{
 
-		if (FyCheckHotKeyStatus(FY_Q) && dirCount % SMOOTHINESS == 0)
+		if (FyCheckHotKeyStatus(FY_Q) && dirCount % SMOOTHINESS == 0 && LyubuID.mana_remain > 0)
 		{
 			curPoseID = NormalAttack1ID;
 		}
-		else if (FyCheckHotKeyStatus(FY_W) && dirCount % SMOOTHINESS == 0)
+		else if (FyCheckHotKeyStatus(FY_W) && dirCount % SMOOTHINESS == 0 && LyubuID.mana_remain > 0)
 		{
 			curPoseID = NormalAttack2ID;
 		}
-		else if (FyCheckHotKeyStatus(FY_E) && dirCount % SMOOTHINESS == 0)
+		else if (FyCheckHotKeyStatus(FY_E) && dirCount % SMOOTHINESS == 0 && LyubuID.mana_remain > 0)
 		{
 			curPoseID = HeavyAttack1ID;
 		}
-		else if (!FyCheckHotKeyStatus(FY_T) && !FyCheckHotKeyStatus(FY_M))
+		else if (!FyCheckHotKeyStatus(FY_T) && !FyCheckHotKeyStatus(FY_M) && 
+			     !FyCheckHotKeyStatus(FY_Q) && !FyCheckHotKeyStatus(FY_W) && 
+				 !FyCheckHotKeyStatus(FY_E) )
 		{
 			curPoseID = runID;
 		}

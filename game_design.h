@@ -41,6 +41,8 @@
 #define GUY_ATTACK_DIST 60.0f
 #define GUY_SCOPE 1000
 #define SEP_WEIGHT 60.0f
+#define GUY_ATTACK 30
+#define GUY_HEAVY_ATTACK 100
 
 class ProduceBadguys{
 
