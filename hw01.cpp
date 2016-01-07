@@ -38,8 +38,9 @@ int oldX, oldY, oldXM, oldYM, oldXMM, oldYMM;
 
 SCENEid sID2;                // the 2D scene
 FnSprite sp;
-OBJECTid spID0 = FAILED_ID;  // the sprite
-OBJECTid spID_hp = FAILED_ID;  
+FnSprite sp_hpFrame;
+OBJECTid spID0 = FAILED_ID;
+OBJECTid spID_hpFrame = FAILED_ID;
 bool missionWindowStatus = FALSE;
 int picture_count = 1;
 
@@ -207,6 +208,25 @@ void FyMain(int argc, char **argv)
 	spID0 = scene.CreateObject(SPRITE);
 	sp.ID(spID0);
 	showPicture(sp, "startTalk_1.png", 780, 180 , 10, 10); //showPicture parameter : FnSprite ,imageName, size, position
+
+
+	spID_hpFrame = scene.CreateObject(SPRITE);
+	sp_hpFrame.ID(spID_hpFrame);
+	showPicture(sp_hpFrame, "hp_line.png", 400, 100, 400, 480);
+
+	spID_hpFrame = scene.CreateObject(SPRITE);
+	sp_hpFrame.ID(spID_hpFrame);
+	showPicture(sp_hpFrame, "hp_blood.png", 250, 10, 500, 510);
+
+	spID_hpFrame = scene.CreateObject(SPRITE);
+	sp_hpFrame.ID(spID_hpFrame);
+	showPicture(sp_hpFrame, "headLyu.png", 80, 80, 475, 520);
+
+	spID_hpFrame = scene.CreateObject(SPRITE);
+	sp_hpFrame.ID(spID_hpFrame);
+	showPicture(sp_hpFrame, "wordLyu.png", 140, 40, 550, 540);
+	
+
 
 	// set Hotkeys
 	FyDefineHotKey(FY_ESCAPE, QuitGame, FALSE);  // escape for quiting the game
