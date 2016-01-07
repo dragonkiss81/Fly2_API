@@ -39,7 +39,8 @@ int oldX, oldY, oldXM, oldYM, oldXMM, oldYMM;
 SCENEid sID2;                // the 2D scene
 FnSprite sp;
 OBJECTid spID0 = FAILED_ID;  // the sprite
-
+OBJECTid spID_hp = FAILED_ID;  
+bool missionWindowStatus = FALSE;
 int picture_count = 1;
 
 
@@ -222,6 +223,9 @@ void FyMain(int argc, char **argv)
 	FyDefineHotKey(FY_S, Movement, FALSE);
 
 	FyDefineHotKey(FY_T, Movement, FALSE);   //Talk button
+	FyDefineHotKey(FY_M, Movement, FALSE);   //Mission button
+
+	FyDefineHotKey(FY_I, Movement, FALSE);   //Mission button
 
 	// define some mouse functions
 	FyBindMouseFunction(LEFT_MOUSE, InitPivot, PivotCam, NULL, NULL);
@@ -242,9 +246,6 @@ void FyMain(int argc, char **argv)
 --------------------------------------------------------------*/
 void GameAI(int skip)
 {
-	
-
-	
 	// play character pose
 	FnCharacter actor;
 	FnCharacter cur_actor;
@@ -820,7 +821,7 @@ void Movement(BYTE code, BOOL4 value)
 		{
 			curPoseID = HeavyAttack1ID;
 		}
-		else if (!FyCheckHotKeyStatus(FY_T))
+		else if (!FyCheckHotKeyStatus(FY_T) && !FyCheckHotKeyStatus(FY_M))
 		{
 			curPoseID = runID;
 		}
@@ -860,9 +861,27 @@ void Movement(BYTE code, BOOL4 value)
 		picture_count++;
 	}
 	else if (FyCheckHotKeyStatus(FY_T) && picture_count == 9){
+		showPicture(sp, "mission_transparent.png", 580, 580 , 110, 15);
+		picture_count++;
+	}
+	else if (FyCheckHotKeyStatus(FY_T) && picture_count > 9) {
 		showPicture(sp, "", 0, 0, 0, 0);
 	}
 
+
+	
+
+	if (FyCheckHotKeyStatus(FY_M) && missionWindowStatus == FALSE  && picture_count > 9)
+	{
+		showPicture(sp, "mission_transparent.png", 580, 580, 110, 15);
+		missionWindowStatus = TRUE;
+
+	}
+	else if(FyCheckHotKeyStatus(FY_M) && missionWindowStatus == TRUE  && picture_count > 9)
+	{
+		showPicture(sp, "", 0, 0, 0, 0);
+		missionWindowStatus = FALSE;
+	}
 }
 
 /*------------------
