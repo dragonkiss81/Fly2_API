@@ -5,7 +5,7 @@ Game Programming Project : using Fly2_API
 
 title        | name
 ----------   |--------------
-last update  | 2015/11/26
+last update  | 2016/01/09
 member       | Lin Sheng Hsuan, Cheng Yun Chung, 唐若曦, 楊喻涵
 
 ------------------
@@ -24,41 +24,15 @@ please check Fly2_API spec document *Fly_2014_NTU* in Doc folder.
 ------------------
 ### C. Progress Report ###
 
-##### 1. implement feature
+##### 1. Feature
 
-1. merge Lin code and chung code.
-2. refactor the code , improve scalability.
-	- using MACRO
-	- using Class and function
-3. bug track
-	- [complete]
-		- set smooth number
-		- blend the action : 10.f
-		- back to idle after action //chung
-		- life class //chung
-		- do not "die" again //lin
-		- attack scope setting //lin
-		- do a complete action when press a hotkey //lin
-	- [bug]
-		- robber damage action bug
-
-
-##### 2. action parameter
-
-- General Actions
-	- Run 
-	- CombatIdle
-	- MoveRight
-	- MoveLeft
-- Attack Actions
-	- NormalAttack1
-	- NormalAttack2
-	- HeavyAttack1
-- Damage Actions
-	- Damage1
-	- Damage2
-	- Die
-
+1. 完美互動體驗的操作介面 2.0!
+2. 無限等級升等機制，練功大呼過癮!
+3. 高智能怪物AI挑戰你的操作極限!
+4. 絕美壯闊的音樂與音效!
+5. 華麗的打鬥3D特效!
+6. 多樣而有趣的成長型怪物生成系統!
+7. 三國演義劇情，帶你一窺董卓與呂布的恩怨情仇!
 
 ------------------
 ### D. Action Item
