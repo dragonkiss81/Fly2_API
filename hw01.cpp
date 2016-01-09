@@ -47,7 +47,7 @@ FnSprite sp_hpFrame, sp_headLyu, sp_wordLyu, sp_hpBlood, sp_hpMana, sp_deadEnd, 
 OBJECTid spID0 = FAILED_ID;
 OBJECTid spID_hpFrame = FAILED_ID, spID_headLyu = FAILED_ID, spID_wordLyu = FAILED_ID, spID_hpBlood = FAILED_ID, spID_hpMana = FAILED_ID, spID_deadEnd = FAILED_ID, spID_trueEnd = FAILED_ID;
 bool missionWindowStatus = FALSE;
-int picture_count = 1;
+int picture_count = 0;
 
 // FX
 GAMEFX_SYSTEMid gFXID = FAILED_ID;
@@ -58,6 +58,7 @@ MEDIAid BackMusic_ID;
 MEDIAid hit_ID, BADHIT_ID;
 MEDIAid damage_ID, DIE_ID;
 MEDIAid RunMusuc_ID;
+FnMedia mP;
 
 
 // Turning Frame Counters
@@ -101,7 +102,6 @@ void FyMain(int argc, char **argv)
 	BackMusic_ID = FyCreateMediaPlayer("background.mp3", 0, 0, 800, 600);   //­I´º­µ¼Ö
 
 	// include background music
-	FnMedia mP;
 	mP.Object(BackMusic_ID);
 	mP.SetVolume(1.0f);
 	mP.Play(LOOP);
@@ -183,13 +183,13 @@ void FyMain(int argc, char **argv)
 
 	for (int i = 0; i < NUM_OF_BOSS; i++)
 	{
-		//temp_pos[0] = 130.636;  //pos[0] + 30 * (rand()%8);
-		//temp_pos[1] = 2707.003; //pos[1] + 30 * (rand()%8);
-		//temp_pos[2] = 70.897;   //pos[2] + 30 * (rand()%8);
+		temp_pos[0] = 130.636;  //pos[0] + 30 * (rand()%8);
+		temp_pos[1] = 2707.003; //pos[1] + 30 * (rand()%8);
+		temp_pos[2] = 70.897;   //pos[2] + 30 * (rand()%8);
 
-		temp_pos[0] = pos[0] + 30 * (rand()%8);
-		temp_pos[1] = pos[1] + 30 * (rand()%8);
-		temp_pos[2] = pos[2] + 30 * (rand()%8);
+		//temp_pos[0] = pos[0] + 30 * (rand()%8);
+		//temp_pos[1] = pos[1] + 30 * (rand()%8);
+		//temp_pos[2] = pos[2] + 30 * (rand()%8);
 
 		SetValues(temp_fDir, -1.0f, -1.0f, 1.0f);
 
@@ -233,7 +233,11 @@ void FyMain(int argc, char **argv)
 
 	spID0 = scene.CreateObject(SPRITE);
 	sp.ID(spID0);
-	showPicture(sp, "startTalk_1.png", 780, 180, 10, 10); //showPicture parameter : FnSprite ,imageName, size, position
+	//showPicture(sp, "startTalk_1.png", 780, 180, 10, 10); //showPicture parameter : FnSprite ,imageName, size, position
+	showPicture(sp, "title.png", 800, 600, 0, 0); //showPicture parameter : FnSprite ,imageName, size, position
+	picture_count++;
+
+
 
 	spID_hpFrame = scene.CreateObject(SPRITE);
 	sp_hpFrame.ID(spID_hpFrame);
@@ -553,12 +557,34 @@ void RenderIt(int skip)
 	showPicture(sp_hpBlood, "hp_blood.png", (int)250 * ((double)LyubuID.blood_remain / LyubuID.blood_total), 8, 500, 514);
 	showPicture(sp_hpMana, "hp_mana.png", (int)250 * ((double)LyubuID.mana_remain / LyubuID.mana_total), 4, 500, 510);
 
-	//if (LyubuID.blood_remain <= 0)
-	//	showPicture(sp_deadEnd, "dead_end.png", 800, 600, 0, 0);
 
-	//if (BossID[0].blood_remain <= 0)
-	//	showPicture(sp_trueEnd, "true_end.png", 800, 600, 0, 0);
+	static int end_flag = 0;
+	if (LyubuID.blood_remain <= 0 && end_flag==0) {
+		showPicture(sp_deadEnd, "dead_end.png", 800, 600, 0, 0);
 
+		mP.Pause();
+
+		FnMedia runMedia;
+		RunMusuc_ID = FyCreateMediaPlayer("battle_lose.mp3", 0, 0, 800, 600);
+		runMedia.Object(RunMusuc_ID);
+		runMedia.SetVolume(10.0f);
+		runMedia.Play(ONCE);
+	
+		end_flag = 1;
+	}
+	if (BossID[0].blood_remain <= 0 && end_flag == 0) {
+		showPicture(sp_trueEnd, "true_end.png", 800, 600, 0, 0);
+
+		mP.Pause();
+
+		FnMedia runMedia;
+		RunMusuc_ID = FyCreateMediaPlayer("battle_win.mp3", 0, 0, 800, 600);
+		runMedia.Object(RunMusuc_ID);
+		runMedia.SetVolume(10.0f);
+		runMedia.Play(ONCE);
+
+		end_flag = 1;
+	}
 	vp.RenderSprites(sID2, FALSE, TRUE);  // no clear the background but clear the z buffer
 	FySwapBuffers();
 
@@ -759,11 +785,15 @@ void RenderIt(int skip)
 	sprintf(uDirS, "HP  %d / %d   MP %d / %d   Attack %d", LyubuID.blood_remain, LyubuID.blood_total, LyubuID.mana_remain, LyubuID.mana_total, LyubuID.attack);
 	sprintf(debug, "Level %d   Exp %d   Next %d", LyubuID.level, LyubuID.exp_cur, LyubuID.exp_total);
 
-	text.Write(posS, 20, 35, 255, 255, 0);
-	text.Write(fDirS, 20, 50, 255, 255, 0);
-	text.Write(uDirS, 20, 65, 255, 255, 0);
-	text.Write(debug, 20, 90, 255, 255, 0);
+	//text.Write(posS, 20, 35, 255, 255, 0);
+	//text.Write(fDirS, 20, 50, 255, 255, 0);
+	
 
+	if (picture_count > 1)
+	{
+		text.Write(debug, 715, 74, 255, 255, 0);
+		text.Write(uDirS, 670, 95, 255, 255, 0);
+	}
 	text.End();
 
 	// swap buffer
@@ -1102,7 +1132,7 @@ void Movement(BYTE code, BOOL4 value)
 
 
 
-
+		
 
 	if (FyCheckHotKeyStatus(FY_T) && picture_count <= 8)
 	{

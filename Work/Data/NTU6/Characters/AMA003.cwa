@@ -1,0 +1,390 @@
+# Character File
+# Created by Fly v2.0
+#
+Actor v 1.0
+
+Character AMA003
+
+Channels 1
+
+BaseScale 0.700000
+
+# Body Data
+Bodies 1
+
+Body AMA003
+{
+   Parent Root
+   RootBone Bip001
+   Actions 4
+      ActionData Idle SimpleAction Idle
+      ActionData Run SimpleAction Run
+      ActionData Attack SimpleAction Attack
+      ActionData Die SimpleAction Die
+
+   DefaultAction 0 Idle 1.000000 0.000000
+
+   PoseNumber 4
+      Pose Idle 11 49 DefaultMotion
+      Pose Run 55 75 DefaultMotion
+      Pose Attack 80 130 DefaultMotion
+      Pose Die 135 190 DefaultMotion
+}
+
+# Bone Data
+Bones 71
+
+Bone Bip001
+{
+   BoneType Animation
+}
+
+Bone Bip001_Footsteps
+{
+   BoneType Animation
+}
+
+Bone Bip001_Pelvis
+{
+   BoneType Animation
+}
+
+Bone Bip001_Spine
+{
+   BoneType Animation
+}
+
+Bone Bip001_L_Thigh
+{
+   BoneType Animation
+}
+
+Bone Bip001_L_Calf
+{
+   BoneType Animation
+}
+
+Bone Bip001_L_Foot
+{
+   BoneType Animation
+}
+
+Bone Bip001_L_Toe0
+{
+   BoneType Animation
+}
+
+Bone Bip001_L_Toe0Nub
+{
+   BoneType Animation
+}
+
+Bone Bip001_R_Thigh
+{
+   BoneType Animation
+}
+
+Bone Bip001_R_Calf
+{
+   BoneType Animation
+}
+
+Bone Bip001_R_Foot
+{
+   BoneType Animation
+}
+
+Bone Bip001_R_Toe0
+{
+   BoneType Animation
+}
+
+Bone Bip001_R_Toe0Nub
+{
+   BoneType Animation
+}
+
+Bone Bip001_Neck
+{
+   BoneType Animation
+}
+
+Bone Bip001_L_Clavicle
+{
+   BoneType Animation
+}
+
+Bone Bip001_L_UpperArm
+{
+   BoneType Animation
+}
+
+Bone Bip001_L_Forearm
+{
+   BoneType Animation
+}
+
+Bone Bip001_L_Hand
+{
+   BoneType Animation
+}
+
+Bone Bip001_L_Finger0
+{
+   BoneType Animation
+}
+
+Bone Bip001_L_Finger01
+{
+   BoneType Animation
+}
+
+Bone Bip001_L_Finger02
+{
+   BoneType Animation
+}
+
+Bone Bip001_L_Finger0Nub
+{
+   BoneType Animation
+}
+
+Bone Bip001_L_Finger1
+{
+   BoneType Animation
+}
+
+Bone Bip001_L_Finger11
+{
+   BoneType Animation
+}
+
+Bone Bip001_L_Finger12
+{
+   BoneType Animation
+}
+
+Bone Bip001_L_Finger1Nub
+{
+   BoneType Animation
+}
+
+Bone Bip001_L_Finger2
+{
+   BoneType Animation
+}
+
+Bone Bip001_L_Finger21
+{
+   BoneType Animation
+}
+
+Bone Bip001_L_Finger22
+{
+   BoneType Animation
+}
+
+Bone Bip001_L_Finger2Nub
+{
+   BoneType Animation
+}
+
+Bone Bip001_L_Finger3
+{
+   BoneType Animation
+}
+
+Bone Bip001_L_Finger31
+{
+   BoneType Animation
+}
+
+Bone Bip001_L_Finger32
+{
+   BoneType Animation
+}
+
+Bone Bip001_L_Finger3Nub
+{
+   BoneType Animation
+}
+
+Bone Bip001_R_Clavicle
+{
+   BoneType Animation
+}
+
+Bone Bip001_R_UpperArm
+{
+   BoneType Animation
+}
+
+Bone Bip001_R_Forearm
+{
+   BoneType Animation
+}
+
+Bone Bip001_R_Hand
+{
+   BoneType Animation
+}
+
+Bone Bip001_R_Finger0
+{
+   BoneType Animation
+}
+
+Bone Bip001_R_Finger01
+{
+   BoneType Animation
+}
+
+Bone Bip001_R_Finger02
+{
+   BoneType Animation
+}
+
+Bone Bip001_R_Finger0Nub
+{
+   BoneType Animation
+}
+
+Bone Bip001_R_Finger1
+{
+   BoneType Animation
+}
+
+Bone Bip001_R_Finger11
+{
+   BoneType Animation
+}
+
+Bone Bip001_R_Finger12
+{
+   BoneType Animation
+}
+
+Bone Bip001_R_Finger1Nub
+{
+   BoneType Animation
+}
+
+Bone Bip001_R_Finger2
+{
+   BoneType Animation
+}
+
+Bone Bip001_R_Finger21
+{
+   BoneType Animation
+}
+
+Bone Bip001_R_Finger22
+{
+   BoneType Animation
+}
+
+Bone Bip001_R_Finger2Nub
+{
+   BoneType Animation
+}
+
+Bone Bip001_R_Finger3
+{
+   BoneType Animation
+}
+
+Bone Bip001_R_Finger31
+{
+   BoneType Animation
+}
+
+Bone Bip001_R_Finger32
+{
+   BoneType Animation
+}
+
+Bone Bip001_R_Finger3Nub
+{
+   BoneType Animation
+}
+
+Bone Bip001_Head
+{
+   BoneType Animation
+}
+
+Bone Bip001_HeadNub
+{
+   BoneType Animation
+}
+
+Bone Bip001_鼻子
+{
+   BoneType Animation
+}
+
+Bone Bip001_鼻子Nub
+{
+   BoneType Animation
+}
+
+Bone Bip001_舌頭
+{
+   BoneType Animation
+}
+
+Bone Bip001_舌頭02
+{
+   BoneType Animation
+}
+
+Bone Bip001_舌頭03
+{
+   BoneType Animation
+}
+
+Bone Bip001_舌頭Nub
+{
+   BoneType Animation
+}
+
+Bone Bip001_下巴
+{
+   BoneType Animation
+}
+
+Bone Bip001_下巴Nub
+{
+   BoneType Animation
+}
+
+Bone Bip001_眼睛
+{
+   BoneType Animation
+}
+
+Bone Bip001_眼睛Nub
+{
+   BoneType Animation
+}
+
+Bone Bip001_眼睛Opp
+{
+   BoneType Animation
+}
+
+Bone Bip001_眼睛OppNub
+{
+   BoneType Animation
+}
+
+Bone Bip001_coo
+{
+   BoneType Animation
+}
+
+Bone Bip001_鏟子Nub
+{
+   BoneType Animation
+}
