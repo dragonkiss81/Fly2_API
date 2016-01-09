@@ -44,7 +44,9 @@ OBJECTid spID_hpFrame = FAILED_ID, spID_headLyu = FAILED_ID, spID_wordLyu = FAIL
 bool missionWindowStatus = FALSE;
 int picture_count = 1;
 
-
+// FX
+GAMEFX_SYSTEMid gFXID = FAILED_ID;
+OBJECTid dummyID = FAILED_ID;
 
 
 /*---------------------------------------------*/
@@ -85,6 +87,7 @@ void FyMain(int argc, char **argv)
 	FySetModelPath("Data\\NTU6\\Scenes");
 	FySetTexturePath("Data\\NTU6\\Scenes\\Textures");
 	FySetScenePath("Data\\NTU6\\Scenes");
+	FySetGameFXPath("Data\\NTU6\\FX");
 
 	// create a viewport
 	vID = FyCreateViewport(0, 0, 1024, 768);
@@ -152,12 +155,12 @@ void FyMain(int argc, char **argv)
 	/*
 	for (int i = 0; i < NUM_OF_BADGUYS; i++)
 	{
-		temp_pos[0] = pos[0] + 30 * (rand()%8);
-		temp_pos[1] = pos[1] + 30 * (rand()%8);
-		temp_pos[2] = pos[2] + 30 * (rand()%8);
-		temp_fDir[0] = -1.0f; temp_fDir[1] = -1.0f; temp_fDir[2] = 1.0f;
+	temp_pos[0] = pos[0] + 30 * (rand()%8);
+	temp_pos[1] = pos[1] + 30 * (rand()%8);
+	temp_pos[2] = pos[2] + 30 * (rand()%8);
+	temp_fDir[0] = -1.0f; temp_fDir[1] = -1.0f; temp_fDir[2] = 1.0f;
 
-		ActorGen(scene, terrainRoomID, badguyID[i], "Robber02", "CombatIdle", temp_pos, temp_fDir, uDir);
+	ActorGen(scene, terrainRoomID, badguyID[i], "Robber02", "CombatIdle", temp_pos, temp_fDir, uDir);
 	}
 	*/
 	for (int i = 0; i < NUM_OF_BOSS; i++)
@@ -168,8 +171,10 @@ void FyMain(int argc, char **argv)
 		SetValues(temp_fDir, -1.0f, -1.0f, 1.0f);
 
 		ActorGen(scene, terrainRoomID, BossID[i], "Donzo2", "CombatIdle", temp_pos, temp_fDir, uDir);
+		BossID[i].idtype = DONZO;
 	}
-	
+
+
 
 	// hw2 initial : set camera position
 	actor.GetPosition(pos);
@@ -207,7 +212,7 @@ void FyMain(int argc, char **argv)
 
 	spID0 = scene.CreateObject(SPRITE);
 	sp.ID(spID0);
-	showPicture(sp, "startTalk_1.png", 780, 180 , 10, 10); //showPicture parameter : FnSprite ,imageName, size, position
+	showPicture(sp, "startTalk_1.png", 780, 180, 10, 10); //showPicture parameter : FnSprite ,imageName, size, position
 
 
 	spID_hpFrame = scene.CreateObject(SPRITE);
@@ -234,7 +239,7 @@ void FyMain(int argc, char **argv)
 
 	spID_trueEnd = scene.CreateObject(SPRITE);
 	sp_trueEnd.ID(spID_trueEnd);
-	
+
 
 
 	// set Hotkeys
@@ -256,7 +261,7 @@ void FyMain(int argc, char **argv)
 
 	FyDefineHotKey(FY_I, Movement, FALSE);   //Mission button
 
-	// define some mouse functions
+											 // define some mouse functions
 	FyBindMouseFunction(LEFT_MOUSE, InitPivot, PivotCam, NULL, NULL);
 	FyBindMouseFunction(MIDDLE_MOUSE, InitZoom, ZoomCam, NULL, NULL);
 	FyBindMouseFunction(RIGHT_MOUSE, InitMove, MoveCam, NULL, NULL);
@@ -275,7 +280,6 @@ void FyMain(int argc, char **argv)
 --------------------------------------------------------------*/
 void GameAI(int skip)
 {
-	// play character pose
 	FnCharacter actor;
 	FnCharacter cur_actor;
 	FnObject terrain;
@@ -284,19 +288,32 @@ void GameAI(int skip)
 	scene.ID(sID);
 	LyubuID.actorID = actorID;
 
+	float actorPos[3];
+	vector<char*> FX_FileName;
+
 	actor.ID(actorID);
+	actor.GetPosition(actorPos);
 
 	if (curPoseID == runID || curPoseID == idleID)
 		actor.Play(LOOP, (float)skip, FALSE, TRUE);
-	else if ( actor.Play(ONCE, (float)skip, FALSE, TRUE) == 0)
-		actor.SetCurrentAction(NULL, 0, idleID, 10.0f);
+	else if (actor.Play(ONCE, (float)skip, FALSE, TRUE) == 0)
+	{
+		curPoseID = idleID;
+		actor.SetCurrentAction(NULL, 0, curPoseID, 10.0f);
+	}
+
+	if (curPoseID == idleID)					// Automatic mana recovery
+	{
+		if (LyubuID.mana_remain < LyubuID.mana_total)
+			LyubuID.mana_remain += 1;
+	}
 
 
 	for (int i = 0; i < NUM_OF_BADGUYS; i++)
 	{
 		cur_actor.ID(badguyID[i].actorID);
 
-		if (badguyID[i].blood_remain > 0)
+		if (badguyID[i].alive)
 		{
 			bool checkMove = MoveToTargetLocation(badguyID[i], LyubuID, badguyID, terrain);
 
@@ -309,9 +326,14 @@ void GameAI(int skip)
 				}
 				else
 				{
-					ACTIONid CombatIdleID = cur_actor.GetBodyAction(NULL, "NormalAttack2");
+					ACTIONid CombatIdleID = cur_actor.GetBodyAction(NULL, get_monster_atk(badguyID[i]));
+					//ACTIONid CombatIdleID = cur_actor.GetBodyAction(NULL, "NormalAttack2");
 					cur_actor.SetCurrentAction(NULL, 0, CombatIdleID);
-					LyubuID.blood_remain = LyubuID.blood_remain - GUY_ATTACK;
+					LyubuID.blood_remain = LyubuID.blood_remain - GUY_ATTACK * badguyID[i].attack / 10;
+				
+					FX_FileName.clear();
+					FX_FileName.push_back("HitForRobber");
+					GenFX(sID, gFXID, dummyID, actorPos, FX_FileName);
 				}
 			}
 		}
@@ -338,15 +360,19 @@ void GameAI(int skip)
 				}
 				else
 				{
-					ACTIONid CombatIdleID = cur_actor.GetBodyAction(NULL, "HeavyAttack");
+					ACTIONid CombatIdleID = cur_actor.GetBodyAction(NULL, get_monster_atk(badguyID[i]));
 					cur_actor.SetCurrentAction(NULL, 0, CombatIdleID);
 					LyubuID.blood_remain = LyubuID.blood_remain - GUY_HEAVY_ATTACK;
+				
+					FX_FileName.clear();
+					FX_FileName.push_back("HitForRobber");
+					GenFX(sID, gFXID, dummyID, actorPos, FX_FileName);
 				}
 			}
 		}
 	}
 
-	
+
 
 
 	// Camera's position and direction as a standard for character's location setting
@@ -370,6 +396,16 @@ void GameAI(int skip)
 	genSpot[0][1] = -2856.196;
 	genSpot[1][0] = 729.288;
 	genSpot[1][1] = -2472.88;
+	genSpot[2][0] = -2372;
+	genSpot[2][1] = -2700;
+	genSpot[3][0] = -1918;
+	genSpot[3][1] = 699;
+	genSpot[4][0] = 299;
+	genSpot[4][1] = 1912;
+	genSpot[5][0] = -352;
+	genSpot[5][1] = 2296;
+	genSpot[6][0] = -700;
+	genSpot[6][1] = -1640;
 
 	// Bad guys generator
 	for (int i = 0; i < NUM_OF_GENERATOR; i++)
@@ -389,7 +425,7 @@ void GameAI(int skip)
 		}
 
 		if (generator[i].in == 1 && generator[i].double_in == 0)
-			generator[i].produce(origin, actoruDir, scene, i, NUM_OF_GENERATOR);
+			generator[i].produce(origin, actoruDir, scene, i, NUM_OF_GENERATOR, LyubuID.level);
 	}
 
 	origin[2] = origin[2] + HEIGHTOFFSET; // need an offset to probe the hit
@@ -414,7 +450,7 @@ void GameAI(int skip)
 			actor.TurnRight(360 - 360 / SMOOTHINESS);
 		}
 	}
-	
+
 	if ((FyCheckHotKeyStatus(FY_UP) || FyCheckHotKeyStatus(FY_S)) && dirCount % SMOOTHINESS == 0)
 	{
 		actor.SetDirection(camerafDir, camerauDir);
@@ -454,6 +490,17 @@ void GameAI(int skip)
 		if (terrain.HitTest(origin, dir) > 0 && camVertical > MAXCAMANGLE)
 			actor.MoveForward(RUNSPEED, FALSE, FALSE, 0, FALSE);
 	}
+
+
+	if (gFXID != FAILED_ID) {
+		FnGameFXSystem gxS(gFXID);
+		BOOL4 beOK = gxS.Play((float)skip, ONCE);
+		if (!beOK) {
+			FnScene scene(sID);
+			scene.DeleteGameFXSystem(gFXID);
+			gFXID = FAILED_ID;
+		}
+	}
 }
 
 /*----------------------
@@ -469,8 +516,8 @@ void RenderIt(int skip)
 	vp.Render3D(cID, TRUE, TRUE);
 
 	// render the sprites
-	showPicture(sp_hpBlood, "hp_blood.png", (int) 250 * ((double)LyubuID.blood_remain / LyubuID.blood_total), 8, 500, 514);
-	showPicture(sp_hpMana, "hp_mana.png", (int) 250 * ((double)LyubuID.mana_remain / LyubuID.mana_total), 4, 500, 510);
+	showPicture(sp_hpBlood, "hp_blood.png", (int)250 * ((double)LyubuID.blood_remain / LyubuID.blood_total), 8, 500, 514);
+	showPicture(sp_hpMana, "hp_mana.png", (int)250 * ((double)LyubuID.mana_remain / LyubuID.mana_total), 4, 500, 510);
 
 	if (LyubuID.blood_remain <= 0)
 		showPicture(sp_deadEnd, "dead_end.png", 800, 600, 0, 0);
@@ -523,12 +570,26 @@ void RenderIt(int skip)
 		pos[1] = actorPos[1] - theDistance * actorfDir[1];
 		pos[2] = tempHeight;
 
-		fDir[0] = actorfDir[0];
-		fDir[1] = actorfDir[1];
+		if (pos[2] > actorPos[2] + HEIGHTOFFSET)
+		{
+			fDir[0] = actorPos[0] - pos[0];
+			fDir[1] = actorPos[1] - pos[1];
+			fDir[2] = -pos[2];
 
-		uDir[0] = fDir[0] / abs(fDir[0] * fDir[1]);
-		uDir[1] = fDir[1] / abs(fDir[0] * fDir[1]);
-		uDir[2] = -abs(uDir[0] * fDir[0] + uDir[1] * fDir[1]) / fDir[2];
+			uDir[0] = fDir[0] / abs(fDir[0] * fDir[1]);
+			uDir[1] = fDir[1] / abs(fDir[0] * fDir[1]);
+			uDir[2] = -abs(uDir[0] * fDir[0] + uDir[1] * fDir[1]) / fDir[2];
+		}
+		else
+		{
+			fDir[0] = actorfDir[0];
+			fDir[1] = actorfDir[1];
+			fDir[2] = 0;
+
+			uDir[0] = 0;
+			uDir[1] = 0;
+			uDir[2] = 1;
+		}
 	}
 	if ((FyCheckHotKeyStatus(FY_UP) || FyCheckHotKeyStatus(FY_S)) && dirCount % SMOOTHINESS == 0)
 	{
@@ -666,8 +727,8 @@ void RenderIt(int skip)
 	char posS[256], fDirS[256], uDirS[256], debug[256];
 	sprintf(posS, "pos: %8.3f %8.3f %8.3f", pos[0], pos[1], pos[2]);
 	sprintf(fDirS, "facing: %8.3f %8.3f %8.3f", fDir[0], fDir[1], fDir[2]);
-	sprintf(uDirS, "up: %8.3f %8.3f %8.3f", uDir[0], uDir[1], uDir[2]);
-	sprintf(debug, "debug: %d %d %d", LyubuID.level, LyubuID.exp_cur, LyubuID.blood_remain);
+	sprintf(uDirS, "HP  %d / %d   MP %d / %d   Attack %d", LyubuID.blood_remain, LyubuID.blood_total, LyubuID.mana_remain, LyubuID.mana_total, LyubuID.attack);
+	sprintf(debug, "Level %d   Exp %d   Next %d", LyubuID.level, LyubuID.exp_cur, LyubuID.exp_total);
 
 	text.Write(posS, 20, 35, 255, 255, 0);
 	text.Write(fDirS, 20, 50, 255, 255, 0);
@@ -694,6 +755,8 @@ void Movement(BYTE code, BOOL4 value)
 
 	FnCharacter actor;
 	FnCharacter badguy;
+	//Tang: FX
+	vector<char*> FX_FileName;
 
 	float actorPos[3], actorfDir[3], actoruDir[3];
 	float badguyPos[3], badguyfDir[3], badguyuDir[3];
@@ -714,7 +777,7 @@ void Movement(BYTE code, BOOL4 value)
 			actorPos[0] += actorfDir[0] * HATKOFFSET;
 			actorPos[1] += actorfDir[1] * HATKOFFSET;
 
-			LyubuID.mana_remain = LyubuID.mana_remain - HATKDAMAGE;
+			LyubuID.mana_remain = LyubuID.mana_remain - HATKDAMAGE * HATKDAMAGE / 100;
 
 			for (int i = 0; i < NUM_OF_BADGUYS; i++)
 			{
@@ -723,15 +786,17 @@ void Movement(BYTE code, BOOL4 value)
 
 				if (FyDistance(badguyPos, actorPos) < HATKRANGE && badguyID[i].blood_remain > 0)
 				{
-					if (!ActAction(badguyID[i], "Damage1", HATKDAMAGE))
+					if (!ActAction(badguyID[i], get_monster_act(badguyID[i]), HATKDAMAGE * LyubuID.attack / 20))
 					{
-						LyubuID.exp_cur += 50;
-						if (LyubuID.exp_cur >= LyubuID.exp_total){
-							LyubuID.level++;
-							LyubuID.exp_cur -= LyubuID.exp_total;
-						}
+						LyubuID.exp_cur += badguyID[i].exp_cur;
+						chk_levelup(LyubuID);
 					}
 				}
+
+				//Tang: FX
+				FX_FileName.clear();
+				FX_FileName.push_back("LyubuDamege");
+				GenFX(sID, gFXID, dummyID, badguyPos, FX_FileName);
 			}
 
 			for (int i = 0; i < NUM_OF_BOSS; i++)
@@ -741,19 +806,28 @@ void Movement(BYTE code, BOOL4 value)
 
 				if (FyDistance(badguyPos, actorPos) < HATKRANGE && BossID[i].blood_remain > 0)
 				{
-					ActAction(BossID[i], "Donzo", HATKDAMAGE);
+					ActAction(BossID[i], get_monster_act(badguyID[i]), HATKDAMAGE * LyubuID.attack / 20);
+				
+					//Tang: FX
+					FX_FileName.clear();
+					FX_FileName.push_back("LyubuDamege");
+					GenFX(sID, gFXID, dummyID, badguyPos, FX_FileName);
 				}
 			}
-		
+
 
 		}
 
-		if (FyCheckHotKeyStatus(FY_W) && dirCount % SMOOTHINESS == 0 && LyubuID.mana_remain > 0)
+		if (FyCheckHotKeyStatus(FY_W) && dirCount % SMOOTHINESS == 0/* && LyubuID.mana_remain > 0*/)
 		{
+
 			actorPos[0] += actorfDir[0] * NATK1OFFSET;
 			actorPos[1] += actorfDir[1] * NATK1OFFSET;
 
-			LyubuID.mana_remain = LyubuID.mana_remain - NATK1DAMAGE;
+			LyubuID.mana_remain = LyubuID.mana_remain - NATK1DAMAGE * NATK1RANGE / 100;
+
+			LyubuID.exp_cur += 50;                            // Debugging
+			chk_levelup(LyubuID);							  // Debugging
 
 			for (int i = 0; i < NUM_OF_BADGUYS; i++)
 			{
@@ -762,15 +836,17 @@ void Movement(BYTE code, BOOL4 value)
 
 				if (FyDistance(badguyPos, actorPos) < NATK1RANGE && badguyID[i].blood_remain > 0)
 				{
-					if (!ActAction(badguyID[i], "Damage2", NATK1DAMAGE))
+					if (!ActAction(badguyID[i], get_monster_act(badguyID[i]), NATK1DAMAGE * LyubuID.attack / 20))
 					{
-						LyubuID.exp_cur += 50;
-						if (LyubuID.exp_cur >= LyubuID.exp_total){
-							LyubuID.level++;
-							LyubuID.exp_cur -= LyubuID.exp_total;
-						}
+						LyubuID.exp_cur += badguyID[i].exp_cur;
+						chk_levelup(LyubuID);
 					}
 				}
+
+				//Tang: FX
+				FX_FileName.clear();
+				FX_FileName.push_back("MonGotHit");
+				GenFX(sID, gFXID, dummyID, badguyPos, FX_FileName);
 			}
 
 			for (int i = 0; i < NUM_OF_BOSS; i++)
@@ -780,7 +856,12 @@ void Movement(BYTE code, BOOL4 value)
 
 				if (FyDistance(badguyPos, actorPos) < NATK1RANGE && BossID[i].blood_remain > 0)
 				{
-					ActAction(BossID[i], "Donzo", NATK1DAMAGE);
+					ActAction(BossID[i], get_monster_act(badguyID[i]), NATK1DAMAGE * LyubuID.attack / 20);
+				
+					//Tang: FX
+					FX_FileName.clear();
+					FX_FileName.push_back("MonGotHit2G02");
+					GenFX(sID, gFXID, dummyID, badguyPos, FX_FileName);
 				}
 			}
 
@@ -792,7 +873,7 @@ void Movement(BYTE code, BOOL4 value)
 			actorPos[1] += actorfDir[1] * NATK2OFFSET;
 
 
-			LyubuID.mana_remain = LyubuID.mana_remain - NATK2DAMAGE;
+			LyubuID.mana_remain = LyubuID.mana_remain - NATK2DAMAGE * NATK2DAMAGE / 100;
 
 			for (int i = 0; i < NUM_OF_BADGUYS; i++)
 			{
@@ -801,15 +882,17 @@ void Movement(BYTE code, BOOL4 value)
 
 				if (FyDistance(badguyPos, actorPos) < NATK2RANGE && badguyID[i].blood_remain > 0)
 				{
-					if (!ActAction(badguyID[i], "Damage2", NATK2DAMAGE))
+					if (!ActAction(badguyID[i], get_monster_act(badguyID[i]), NATK2DAMAGE * LyubuID.attack / 20))
 					{
-						LyubuID.exp_cur += 50;
-						if (LyubuID.exp_cur >= LyubuID.exp_total){
-							LyubuID.level++;
-							LyubuID.exp_cur -= LyubuID.exp_total;
-						}
+						LyubuID.exp_cur += badguyID[i].exp_cur;
+						chk_levelup(LyubuID);
 					}
 				}
+
+				//Tang: FX
+				FX_FileName.clear();
+				FX_FileName.push_back("Lyubu_atk01 -X");
+				GenFX(sID, gFXID, dummyID, badguyPos, FX_FileName);
 			}
 
 			for (int i = 0; i < NUM_OF_BOSS; i++)
@@ -819,7 +902,12 @@ void Movement(BYTE code, BOOL4 value)
 
 				if (FyDistance(badguyPos, actorPos) < NATK2RANGE && BossID[i].blood_remain > 0)
 				{
-					ActAction(BossID[i], "Donzo", NATK2DAMAGE);
+					ActAction(BossID[i], get_monster_act(badguyID[i]), NATK2DAMAGE);
+					
+					//Tang: FX
+					FX_FileName.clear();
+					FX_FileName.push_back("Lyubu_atk01 -X");
+					GenFX(sID, gFXID, dummyID, badguyPos, FX_FileName);
 				}
 			}
 
@@ -853,33 +941,66 @@ void Movement(BYTE code, BOOL4 value)
 
 	// 3. the actor is idle when idle_count is equal to zero.   
 
-	
+
 	if (idle_count > 0)
 	{
 
 		if (FyCheckHotKeyStatus(FY_Q) && dirCount % SMOOTHINESS == 0 && LyubuID.mana_remain > 0)
 		{
 			curPoseID = NormalAttack1ID;
+
+			//Tang: FX
+			FX_FileName.clear();
+			FX_FileName.push_back("AttacKBasic");
+			FX_FileName.push_back("Lyubu_skill01");
+			FX_FileName.push_back("LyubuDamege");
+			GenFX(sID, gFXID, dummyID, actorPos, FX_FileName);
 		}
 		else if (FyCheckHotKeyStatus(FY_W) && dirCount % SMOOTHINESS == 0 && LyubuID.mana_remain > 0)
 		{
 			curPoseID = NormalAttack2ID;
+
+			//Tang: FX
+			FX_FileName.clear();
+			FX_FileName.push_back("AttacKBasic");
+			FX_FileName.push_back("Lyubu_skill02");
+			FX_FileName.push_back("Lyubu_atk01");
+			FX_FileName.push_back("MonGotHit_1");
+			GenFX(sID, gFXID, dummyID, actorPos, FX_FileName);
 		}
 		else if (FyCheckHotKeyStatus(FY_E) && dirCount % SMOOTHINESS == 0 && LyubuID.mana_remain > 0)
 		{
 			curPoseID = HeavyAttack1ID;
+
+			//Tang: FX
+			FX_FileName.clear();
+			FX_FileName.push_back("AttacKBasic");
+			FX_FileName.push_back("Lyubu_skill03");
+			FX_FileName.push_back("MonGotHit2G04");
+			//FX_FileName.push_back("Lyubu_atk01 - X");
+			GenFX(sID, gFXID, dummyID, actorPos, FX_FileName);
 		}
-		else if (!FyCheckHotKeyStatus(FY_T) && !FyCheckHotKeyStatus(FY_M) && 
-			     !FyCheckHotKeyStatus(FY_Q) && !FyCheckHotKeyStatus(FY_W) && 
-				 !FyCheckHotKeyStatus(FY_E) )
+		else if (!FyCheckHotKeyStatus(FY_T) && !FyCheckHotKeyStatus(FY_M) &&
+			!FyCheckHotKeyStatus(FY_Q) && !FyCheckHotKeyStatus(FY_W) &&
+			!FyCheckHotKeyStatus(FY_E))
 		{
 			curPoseID = runID;
+
+			//Tang: FX
+			FX_FileName.clear();
+			FX_FileName.push_back("RunFX");
+			GenFX(sID, gFXID, dummyID, actorPos, FX_FileName);
 		}
 		else
 		{
 			curPoseID = idleID;
+
+			//Tang: FX
+			FX_FileName.clear();
+			FX_FileName.push_back("RunFX");
+			GenFX(sID, gFXID, dummyID, actorPos, FX_FileName);
 		}
-		
+
 		actor.SetCurrentAction(NULL, 0, curPoseID, 5.0f);
 	}
 	else if (curPoseID == runID)
@@ -905,13 +1026,13 @@ void Movement(BYTE code, BOOL4 value)
 		char* chr = strdup(picture.c_str());
 
 		showPicture(sp, chr, 780, 180, 10, 10); //showPicture parameter : FnSprite ,imageName, size, position
-	
+
 		free(chr);
 
 		picture_count++;
 	}
-	else if (FyCheckHotKeyStatus(FY_T) && picture_count == 9){
-		showPicture(sp, "mission_transparent.png", 580, 580 , 110, 15);
+	else if (FyCheckHotKeyStatus(FY_T) && picture_count == 9) {
+		showPicture(sp, "mission_transparent.png", 580, 580, 110, 15);
 		picture_count++;
 	}
 	else if (FyCheckHotKeyStatus(FY_T) && picture_count > 9) {
@@ -919,7 +1040,7 @@ void Movement(BYTE code, BOOL4 value)
 	}
 
 
-	
+
 
 	if (FyCheckHotKeyStatus(FY_M) && missionWindowStatus == FALSE  && picture_count > 9)
 	{
@@ -927,7 +1048,7 @@ void Movement(BYTE code, BOOL4 value)
 		missionWindowStatus = TRUE;
 
 	}
-	else if(FyCheckHotKeyStatus(FY_M) && missionWindowStatus == TRUE  && picture_count > 9)
+	else if (FyCheckHotKeyStatus(FY_M) && missionWindowStatus == TRUE  && picture_count > 9)
 	{
 		showPicture(sp, "", 0, 0, 0, 0);
 		missionWindowStatus = FALSE;
@@ -1047,7 +1168,7 @@ void ZoomCam(int x, int y)
 }
 
 
-void ProduceBadguys::produce(float* pos, float* uDir, FnScene scene, int generatorNUM, int totalgenNUM)
+void ProduceBadguys::produce(float* pos, float* uDir, FnScene scene, int generatorNUM, int totalgenNUM, int level)
 {
 	float temp_pos[3];
 	float temp_fDir[3];
@@ -1063,7 +1184,41 @@ void ProduceBadguys::produce(float* pos, float* uDir, FnScene scene, int generat
 			temp_fDir[0] = -1.0f; temp_fDir[1] = -1.0f; temp_fDir[2] = 1.0f;
 
 			badguyID[i].reset();
-			ActorGen(scene, terrainRoomID, badguyID[i], "Robber02", "CombatIdle", temp_pos, temp_fDir, uDir);
+			badguylevelup(level, badguyID[i]);
+			if (level < 3) {              //     Level settings just for debug
+				badguyID[i].idtype = ROBBER;
+				ActorGen(scene, terrainRoomID, badguyID[i], "Robber02", "CombatIdle", temp_pos, temp_fDir, uDir);
+			}
+			else if (level < 4)
+			{
+				badguyID[i].idtype = AMA001;
+				ActorGen(scene, terrainRoomID, badguyID[i], "AMA001", "CombatIdle", temp_pos, temp_fDir, uDir);
+			}
+			else if (level < 5)
+			{
+				badguyID[i].idtype = AMA002;
+				ActorGen(scene, terrainRoomID, badguyID[i], "AMA002", "CombatIdle", temp_pos, temp_fDir, uDir);
+			}
+			else if (level < 6)
+			{
+				badguyID[i].idtype = AMA003;
+				ActorGen(scene, terrainRoomID, badguyID[i], "AMA003", "CombatIdle", temp_pos, temp_fDir, uDir);
+			}
+			else if (level < 7)
+			{
+				badguyID[i].idtype = AMA004;
+				ActorGen(scene, terrainRoomID, badguyID[i], "AMA004", "CombatIdle", temp_pos, temp_fDir, uDir);
+			}
+			else if (level < 8)
+			{
+				badguyID[i].idtype = AMA005;
+				ActorGen(scene, terrainRoomID, badguyID[i], "AMA005", "CombatIdle", temp_pos, temp_fDir, uDir);
+			}
+			else
+			{
+				badguyID[i].idtype = AMA006;
+				ActorGen(scene, terrainRoomID, badguyID[i], "AMA006", "CombatIdle", temp_pos, temp_fDir, uDir);
+			}
 			break;
 		}
 	}

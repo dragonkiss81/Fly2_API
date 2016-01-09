@@ -1,4 +1,6 @@
 #include <vector>
+#include <math.h>
+
 // Distance section
 #define SHORTDIST 500
 #define LONGDIST 600
@@ -18,9 +20,9 @@
 #define ACTORPROBE 5
 
 // Population related
-#define NUM_OF_BADGUYS 12
+#define NUM_OF_BADGUYS 35
 #define NUM_OF_BOSS 1
-#define NUM_OF_GENERATOR 2
+#define NUM_OF_GENERATOR 7
 
 // Attack attributes
 
@@ -44,11 +46,30 @@
 #define GUY_ATTACK 30
 #define GUY_HEAVY_ATTACK 100
 
+// IDtypes
+#define LYUBU 0
+#define DONZO 1
+#define ROBBER 2
+#define AMA001 3
+#define AMA002 4
+#define AMA003 5
+#define AMA004 6
+#define AMA005 7
+#define AMA006 8
+
+class ProduceBadguys;
+class ACTNUM;
+int nextlevel_exp(int level);
+int HpMp(int level);
+void levelup(ACTNUM &actsystem);
+int abilities(int level);
+void badguylevelup(int level, ACTNUM &actsystem);
+
 class ProduceBadguys{
 
 public:
 	//Create bad guys
-	void produce(float* pos, float* uDir, FnScene scene, int generatorNUM, int totalgenNUM);
+	void produce(float* pos, float* uDir, FnScene scene, int generatorNUM, int totalgenNUM, int level);
 	//Generation attributes
 	void react();
 	float range = 100.0;
@@ -60,13 +81,15 @@ public:
 class ACTNUM {
 public:
 	ACTNUM(){
-		blood_total = 1024;
-		blood_remain = 1024;
-		mana_total = 1024;
-		mana_remain = 1024;
-		exp_total = 1024;
+		blood_total = 1000;
+		blood_remain = 1000;
+		mana_total = 1000;
+		mana_remain = 1000;
+		attack = 20;
+		level = 1;
+		exp_total = nextlevel_exp(level);
 		exp_cur = 0;
-		level = 0;
+		idtype = 0;
 	};
 	void reset();
 	CHARACTERid actorID;
@@ -74,22 +97,27 @@ public:
 	int blood_remain;
 	int mana_total;
 	int mana_remain;
+	int attack;
 	int exp_total;
 	int exp_cur;
 	int level;
+	int idtype;
 	int alive = 0; // To control the population of bad guys
 };
 
 void ACTNUM::reset()
 {
-	blood_total = 1024;
-	blood_remain = 1024;
-	mana_total = 1024;
-	mana_remain = 1024;
-	exp_total = 1024;
+	blood_total = 500;
+	blood_remain = 500;
+	mana_total = 500;
+	mana_remain = 500;
+	attack = 20;
+	level = 1;
+	exp_total = nextlevel_exp(level);
 	exp_cur = 0;
-	level = 0;
+	idtype = 0;
 }
+
 
 void computeSeparation(ACTNUM meGuy, std::vector<ACTNUM> otherGuy, float* vec)
 {
@@ -238,7 +266,7 @@ BOOL ActAction(ACTNUM &actsystem, char* act, int damage_num)
 	}
 	else
 	{
-		if (act != "Donzo")
+		if (act = "Donzo")
 		{
 			float fDir[3], uDir[3];
 			fDir[0] = 1.0f; fDir[1] = 1.0f; fDir[2] = 0.0f;
@@ -266,3 +294,115 @@ void SetValues(float* variable, float x_val, float y_val, float z_val)
 	variable[1] = y_val;
 	variable[2] = z_val;
 }
+
+int nextlevel_exp(int level)
+{	
+	int stage = level / 5;
+	float gap_factor = 1 + 0.15 * (stage);
+	float expon = 1.5 - (float)(level - 1) / 150;
+	int nxt = 100 * pow(gap_factor, 2) * pow(expon, level);
+	return nxt - nxt % (int)pow(10, level/10 + 1);
+}
+
+BOOL chk_levelup(ACTNUM &actsystem)
+{
+	if (actsystem.exp_cur >= actsystem.exp_total){
+		levelup(actsystem);
+		return 1;
+	}
+	else
+		return 0;
+}
+
+void levelup(ACTNUM &actsystem)
+{
+	actsystem.exp_cur -= actsystem.exp_total;
+	actsystem.level++;
+	actsystem.exp_total = nextlevel_exp(actsystem.level);
+	actsystem.blood_total = HpMp(actsystem.level);
+	actsystem.blood_remain = HpMp(actsystem.level);
+	actsystem.mana_total = HpMp(actsystem.level);
+	actsystem.mana_remain = HpMp(actsystem.level);
+	actsystem.attack = abilities(actsystem.level);
+}
+
+int HpMp(int level)
+{
+	return pow(level + 10, 3) / 4 + 667;
+}
+
+int abilities(int level)
+{
+	return 20 + 10 * level * log10(level);
+}
+
+void badguylevelup(int level, ACTNUM &actsystem)
+{
+	actsystem.blood_total = 500 + 200 * level;
+	actsystem.blood_remain = 500 + 200 * level;
+	actsystem.attack = 10 + 10 * level;
+	actsystem.exp_cur = 50 * (1 + 0.2 * level) + 40 * 2 * ((level - 1) / 5);
+}
+
+
+char* get_monster_act(ACTNUM &actsystem)
+{
+	switch (actsystem.idtype)
+	{
+		case DONZO:
+			return "Donzo";
+			break;
+		case ROBBER:
+			return "Damage1";
+			break;
+		case AMA001:
+			return "AMA001";
+			break;
+		default:
+			break;
+	}
+}
+
+char* get_monster_atk(ACTNUM &actsystem)
+{
+	switch (actsystem.idtype)
+	{
+	case DONZO:
+		return "HeavyAttack";
+		break;
+	case ROBBER:
+		return "NormalAttack2";
+		break;
+	case AMA001:
+		return "Attack";
+		break;
+	default:
+		return "Attack";
+		break;
+	}
+}
+
+//Tang: FX
+void GenFX(SCENEid &sID, GAMEFX_SYSTEMid &gFXID, OBJECTid &dummyID, float* Pos, std::vector<char*> &FX_FileName){
+	FnScene scene(sID);
+	if (gFXID != NULL) {
+		scene.DeleteGameFXSystem(gFXID);
+	}
+	gFXID = scene.CreateGameFXSystem();
+	FnGameFXSystem gxS(gFXID);
+	if (dummyID == FAILED_ID) {
+		dummyID = scene.CreateObject(MODEL);
+	}
+	FnObject dummy(dummyID);
+	dummy.SetPosition(Pos);
+	for (int i = 0; i < FX_FileName.size(); i++){
+		if (FX_FileName[i] != NULL){
+			BOOL4 beOK = gxS.Load(FX_FileName[i], TRUE);
+			if (beOK) {
+				gxS.SetParentObjectForAll(dummyID);
+			}
+		}
+	}
+
+}
+//Tang
