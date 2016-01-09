@@ -103,6 +103,7 @@ void FyMain(int argc, char **argv)
 	// include background music
 	FnMedia mP;
 	mP.Object(BackMusic_ID);
+	mP.SetVolume(1.0f);
 	mP.Play(LOOP);
 
 	// create a viewport
@@ -353,8 +354,9 @@ void GameAI(int skip)
 					FnMedia BHit;
 					BADHIT_ID = FyCreateMediaPlayer("katana-clash3.mp3", 0, 0, 800, 600);
 					BHit.Object(BADHIT_ID);
+					BHit.SetVolume(1.0f);
 					BHit.Play(ONCE);
-					BHit.SetVolume(7.0f);
+					
 				}
 			}
 		}
@@ -400,8 +402,9 @@ void GameAI(int skip)
 						FnMedia BHit;
 						BADHIT_ID = FyCreateMediaPlayer("sword-clash1.mp3", 0, 0, 800, 600);
 						BHit.Object(BADHIT_ID);
+						BHit.SetVolume(1.0f);
 						BHit.Play(ONCE);
-						BHit.SetVolume(7.0f);
+						
 					}
 				}
 			}
@@ -811,7 +814,7 @@ void Movement(BYTE code, BOOL4 value)
 					//damage_ID = FyCreateMediaPlayer("damage6.mp3", 0, 0, 800, 600);
 					//dam.Object(damage_ID);
 					//dam.Play(LOOP);
-					//dam.SetVolume(7.0f);
+					//dam.SetVolume(1.0f);
 					
 					
 					if (!ActAction(badguyID[i], get_monster_act(badguyID[i]), HATKDAMAGE * LyubuID.attack / 20))
@@ -820,7 +823,7 @@ void Movement(BYTE code, BOOL4 value)
 						DIE_ID = FyCreateMediaPlayer("samurai_shouting1.mp3", 0, 0, 800, 600);
 						Die.Object(DIE_ID);
 						Die.Play(ONCE);
-						Die.SetVolume(7.0f);
+						Die.SetVolume(1.0f);
 						
 						LyubuID.exp_cur += badguyID[i].exp_cur;
 						chk_levelup(LyubuID);
@@ -843,7 +846,7 @@ void Movement(BYTE code, BOOL4 value)
 					damage_ID = FyCreateMediaPlayer("damage6.mp3", 0, 0, 800, 600);
 					dam.Object(damage_ID);
 					dam.Play(LOOP);
-					dam.SetVolume(7.0f);
+					dam.SetVolume(1.0f);
 					
 					ActAction(BossID[i], get_monster_act(BossID[i]), HATKDAMAGE * LyubuID.attack / 20);
 				
@@ -878,7 +881,7 @@ void Movement(BYTE code, BOOL4 value)
 					//damage_ID = FyCreateMediaPlayer("damage6.mp3", 0, 0, 800, 600);
 					//dam.Object(damage_ID);
 					//dam.Play(LOOP);
-					//dam.SetVolume(7.0f);
+					//dam.SetVolume(1.0f);
 					
 					if (!ActAction(badguyID[i], get_monster_act(badguyID[i]), NATK1DAMAGE * LyubuID.attack / 20))
 					{
@@ -886,7 +889,7 @@ void Movement(BYTE code, BOOL4 value)
 						DIE_ID = FyCreateMediaPlayer("samurai_shouting1.mp3", 0, 0, 800, 600);
 						Die.Object(DIE_ID);
 						Die.Play(ONCE);
-						Die.SetVolume(7.0f);
+						Die.SetVolume(1.0f);
 						
 						LyubuID.exp_cur += badguyID[i].exp_cur;
 						chk_levelup(LyubuID);
@@ -909,7 +912,7 @@ void Movement(BYTE code, BOOL4 value)
 					damage_ID = FyCreateMediaPlayer("damage6.mp3", 0, 0, 800, 600);
 					dam.Object(damage_ID);
 					dam.Play(LOOP);
-					dam.SetVolume(7.0f);
+					dam.SetVolume(1.0f);
 					
 					ActAction(BossID[i], get_monster_act(BossID[i]), NATK1DAMAGE * LyubuID.attack / 20);
 				
@@ -940,7 +943,7 @@ void Movement(BYTE code, BOOL4 value)
 					//damage_ID = FyCreateMediaPlayer("damage6.mp3", 0, 0, 800, 600);
 					//dam.Object(damage_ID);
 					//dam.Play(LOOP);
-					//dam.SetVolume(7.0f);
+					//dam.SetVolume(1.0f);
 					
 					if (!ActAction(badguyID[i], get_monster_act(badguyID[i]), NATK2DAMAGE * LyubuID.attack / 20))
 					{
@@ -948,7 +951,7 @@ void Movement(BYTE code, BOOL4 value)
 						DIE_ID = FyCreateMediaPlayer("samurai_shouting1.mp3", 0, 0, 800, 600);
 						Die.Object(DIE_ID);
 						Die.Play(ONCE);
-						Die.SetVolume(7.0f);
+						Die.SetVolume(1.0f);
 						
 						LyubuID.exp_cur += badguyID[i].exp_cur;
 						chk_levelup(LyubuID);
@@ -971,7 +974,7 @@ void Movement(BYTE code, BOOL4 value)
 					damage_ID = FyCreateMediaPlayer("damage6.mp3", 0, 0, 800, 600);
 					dam.Object(damage_ID);
 					dam.Play(LOOP);
-					dam.SetVolume(7.0f);
+					dam.SetVolume(1.0f);
 					
 					ActAction(BossID[i], get_monster_act(BossID[i]), NATK2DAMAGE);
 					
@@ -1023,7 +1026,7 @@ void Movement(BYTE code, BOOL4 value)
 			hit_ID = FyCreateMediaPlayer("sword-slash4.mp3", 0, 0, 800, 600);
 			hit.Object(hit_ID);
 			hit.Play(LOOP);
-			hit.SetVolume(7.0f);
+			hit.SetVolume(1.0f);
 
 			FX_FileName.clear();
 			FX_FileName.push_back("AttacKBasic");
@@ -1039,7 +1042,7 @@ void Movement(BYTE code, BOOL4 value)
 			hit_ID = FyCreateMediaPlayer("sword-slash4.mp3", 0, 0, 800, 600);
 			hit.Object(hit_ID);
 			hit.Play(LOOP);
-			hit.SetVolume(7.0f);
+			hit.SetVolume(1.0f);
 
 			FX_FileName.clear();
 			FX_FileName.push_back("AttacKBasic");
@@ -1056,7 +1059,7 @@ void Movement(BYTE code, BOOL4 value)
 			hit_ID = FyCreateMediaPlayer("sword-slash4.mp3", 0, 0, 800, 600);
 			hit.Object(hit_ID);
 			hit.Play(LOOP);
-			hit.SetVolume(7.0f);
+			hit.SetVolume(1.0f);
 
 			FX_FileName.clear();
 			FX_FileName.push_back("AttacKBasic");
@@ -1075,7 +1078,7 @@ void Movement(BYTE code, BOOL4 value)
 			RunMusuc_ID = FyCreateMediaPlayer("running2.mp3", 0, 0, 800, 600);
 			runMedia.Object(RunMusuc_ID);
 			runMedia.Play(ONCE);
-			runMedia.SetVolume(7.0f);
+			runMedia.SetVolume(1.0f);
 
 			FX_FileName.clear();
 			FX_FileName.push_back("RunFX");
@@ -1108,12 +1111,22 @@ void Movement(BYTE code, BOOL4 value)
 		string pic_num(str_buf);
 
 		string picture = "startTalk_" + pic_num + ".png";
+		string talk = "startTalk_" + pic_num + ".mp3";
 		char* chr = strdup(picture.c_str());
+		char* chr2 = strdup(talk.c_str());
+
 
 		showPicture(sp, chr, 780, 180, 10, 10); //showPicture parameter : FnSprite ,imageName, size, position
 
-		free(chr);
+		FnMedia runMedia;
+		RunMusuc_ID = FyCreateMediaPlayer(chr2, 0, 0, 800, 600);
+		runMedia.Object(RunMusuc_ID);
+		runMedia.SetVolume(10.0f);
+		runMedia.Play(ONCE);
+		
 
+
+		free(chr);
 		picture_count++;
 	}
 	else if (FyCheckHotKeyStatus(FY_T) && picture_count == 9) {
