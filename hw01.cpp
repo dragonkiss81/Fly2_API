@@ -195,6 +195,8 @@ void FyMain(int argc, char **argv)
 
 		ActorGen(scene, terrainRoomID, BossID[i], "Donzo2", "CombatIdle", temp_pos, temp_fDir, uDir);
 		BossID[i].idtype = DONZO;
+		BossID[i].blood_remain = BOSS_HP;
+		BossID[i].blood_total = BOSS_HP;
 	}
 
 	// set camera position
@@ -323,9 +325,9 @@ void GameAI(int skip)
 	if (curPoseID == idleID)					// Automatic mana recovery
 	{
 		if (LyubuID.mana_remain < LyubuID.mana_total)
-			LyubuID.mana_remain += 2;
+			LyubuID.mana_remain += IDLEMANA;
 		if (LyubuID.blood_remain < LyubuID.blood_total)
-			LyubuID.blood_remain += 1;
+			LyubuID.blood_remain += IDLEHP;
 	}
 
 
@@ -397,7 +399,7 @@ void GameAI(int skip)
 					{
 						ACTIONid CombatIdleID = cur_actor.GetBodyAction(NULL, get_monster_atk(BossID[i]));
 						cur_actor.SetCurrentAction(NULL, 0, CombatIdleID);
-						LyubuID.blood_remain = LyubuID.blood_remain - GUY_HEAVY_ATTACK;
+						LyubuID.blood_remain = LyubuID.blood_remain - BOSS_HEAVY_ATTACK;
 
 						FX_FileName.clear();
 						FX_FileName.push_back("HitForRobber");
@@ -825,7 +827,7 @@ void Movement(BYTE code, BOOL4 value)
 	{
 		idle_count++;
 
-		if (FyCheckHotKeyStatus(FY_Q) && dirCount % SMOOTHINESS == 0 && LyubuID.mana_remain > 0)
+		if (FyCheckHotKeyStatus(FY_Q) && dirCount % SMOOTHINESS == 0 && LyubuID.mana_remain - HATKDAMAGE * HATKDAMAGE / 100 > 0)
 		{
 			actorPos[0] += actorfDir[0] * HATKOFFSET;
 			actorPos[1] += actorfDir[1] * HATKOFFSET;
@@ -856,7 +858,14 @@ void Movement(BYTE code, BOOL4 value)
 						Die.SetVolume(1.0f);
 						
 						LyubuID.exp_cur += badguyID[i].exp_cur;
-						chk_levelup(LyubuID);
+
+						if (chk_levelup(LyubuID))
+						{
+							FX_FileName.clear();
+							FX_FileName.push_back("BearRage3");
+							FX_FileName.push_back("MagicCirclexx");
+							GenFX(sID, gFXID, dummyID, actorPos, FX_FileName);
+						}
 					}
 				}
 
@@ -882,14 +891,14 @@ void Movement(BYTE code, BOOL4 value)
 				
 					FX_FileName.clear();
 					FX_FileName.push_back("LyubuDamege");
-					GenFX(sID, gFXID, dummyID, badguyPos, FX_FileName);
+					GenFX(sID, gFXID, dummyID, actorPos, FX_FileName);
 				}
 			}
 
 
 		}
 
-		if (FyCheckHotKeyStatus(FY_W) && dirCount % SMOOTHINESS == 0/* && LyubuID.mana_remain > 0*/)
+		if (FyCheckHotKeyStatus(FY_W) && dirCount % SMOOTHINESS == 0 && LyubuID.mana_remain - NATK1DAMAGE * NATK1RANGE / 100 > 0)
 		{
 
 			actorPos[0] += actorfDir[0] * NATK1OFFSET;
@@ -897,8 +906,16 @@ void Movement(BYTE code, BOOL4 value)
 
 			LyubuID.mana_remain = LyubuID.mana_remain - NATK1DAMAGE * NATK1RANGE / 100;
 
-			LyubuID.exp_cur += 50;                            // Debugging
-			chk_levelup(LyubuID);							  // Debugging
+			LyubuID.exp_cur += 100;								  // Debugging
+			if (chk_levelup(LyubuID))							  // Debugging
+			{
+				FX_FileName.clear();
+				FX_FileName.push_back("BearRage");
+				FX_FileName.push_back("BearRage2");
+				FX_FileName.push_back("BearRage3");
+				FX_FileName.push_back("MagicCirclexx");
+				GenFX(sID, gFXID, dummyID, actorPos, FX_FileName);
+			}
 
 			for (int i = 0; i < NUM_OF_BADGUYS; i++)
 			{
@@ -922,7 +939,14 @@ void Movement(BYTE code, BOOL4 value)
 						Die.SetVolume(1.0f);
 						
 						LyubuID.exp_cur += badguyID[i].exp_cur;
-						chk_levelup(LyubuID);
+
+						if (chk_levelup(LyubuID))							 
+						{
+							FX_FileName.clear();
+							FX_FileName.push_back("BearRage3");
+							FX_FileName.push_back("MagicCirclexx");
+							GenFX(sID, gFXID, dummyID, actorPos, FX_FileName);
+						}
 					}
 				}
 
@@ -954,7 +978,7 @@ void Movement(BYTE code, BOOL4 value)
 
 		}
 
-		if (FyCheckHotKeyStatus(FY_E) && dirCount % SMOOTHINESS == 0 && LyubuID.mana_remain > 0)
+		if (FyCheckHotKeyStatus(FY_E) && dirCount % SMOOTHINESS == 0 && LyubuID.mana_remain - NATK2DAMAGE * NATK2DAMAGE / 100 > 0)
 		{
 			actorPos[0] += actorfDir[0] * NATK2OFFSET;
 			actorPos[1] += actorfDir[1] * NATK2OFFSET;
@@ -984,7 +1008,14 @@ void Movement(BYTE code, BOOL4 value)
 						Die.SetVolume(1.0f);
 						
 						LyubuID.exp_cur += badguyID[i].exp_cur;
-						chk_levelup(LyubuID);
+
+						if (chk_levelup(LyubuID))
+						{
+							FX_FileName.clear();
+							FX_FileName.push_back("BearRage3");
+							FX_FileName.push_back("MagicCirclexx");
+							GenFX(sID, gFXID, dummyID, actorPos, FX_FileName);
+						}
 					}
 				}
 
@@ -1058,7 +1089,7 @@ void Movement(BYTE code, BOOL4 value)
 			hit.Play(LOOP);
 			hit.SetVolume(1.0f);
 
-			FX_FileName.clear();
+			//FX_FileName.clear();
 			FX_FileName.push_back("AttacKBasic");
 			FX_FileName.push_back("Lyubu_skill01");
 			FX_FileName.push_back("LyubuDamege");
@@ -1074,7 +1105,7 @@ void Movement(BYTE code, BOOL4 value)
 			hit.Play(LOOP);
 			hit.SetVolume(1.0f);
 
-			FX_FileName.clear();
+			//FX_FileName.clear();
 			FX_FileName.push_back("AttacKBasic");
 			FX_FileName.push_back("Lyubu_skill02");
 			FX_FileName.push_back("Lyubu_atk01");

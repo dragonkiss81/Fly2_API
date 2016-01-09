@@ -38,13 +38,19 @@
 #define NATK1DAMAGE 200
 #define NATK2DAMAGE 150
 
+#define IDLEMANA 6
+#define IDLEHP 2
+
+
 // Enemies
 #define GUY_SPEED 3.0f
 #define GUY_ATTACK_DIST 60.0f
 #define GUY_SCOPE 1000
 #define SEP_WEIGHT 60.0f
 #define GUY_ATTACK 30
-#define GUY_HEAVY_ATTACK 100
+
+#define BOSS_HEAVY_ATTACK 512
+#define BOSS_HP 11600
 
 // IDtypes
 #define LYUBU 0
@@ -402,7 +408,6 @@ void GenFX(SCENEid &sID, GAMEFX_SYSTEMid &gFXID, OBJECTid &dummyID, float* Pos, 
 			}
 		}
 	}
-
 }
 
 void showPicture(FnSprite &sp, char* imageName, int size_x, int size_y,int pos_x, int pos_y)

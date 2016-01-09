@@ -12,6 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Include\Fly.h" />
+    <ClInclude Include="game_design.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="hw01.cpp" />
