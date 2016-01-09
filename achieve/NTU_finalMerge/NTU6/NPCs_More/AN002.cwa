@@ -1,0 +1,65 @@
+# Character File
+# Created by Fly v2.0
+#
+Actor v 1.0
+
+Character AN002
+
+Channels 1
+
+BaseScale 1.000000
+
+# Body Data
+Bodies 1
+
+Body AN002
+{
+   Parent Root
+   RootBone Bone001
+   Actions 4
+      ActionData Run SimpleAction Run
+      ActionData Attack SimpleAction Attack
+      ActionData Skill SimpleAction Skill
+      ActionData Die SimpleAction Die
+
+   DefaultAction 0 Run 1.000000 0.000000
+
+   PoseNumber 4
+      Pose Run 0 30 DefaultMotion
+      Pose Attack 30 60 DefaultMotion
+      Pose Skill 60 90 DefaultMotion
+      Pose Die 90 130 DefaultMotion
+}
+
+# Bone Data
+Bones 6
+
+Bone Bone001
+{
+   BoneType Animation
+}
+
+Bone Bone003
+{
+   BoneType Animation
+}
+
+Bone Bone002
+{
+   BoneType Animation
+}
+
+Bone connectBone001
+{
+   BoneType Animation
+}
+
+Bone Bone004
+{
+   BoneType Animation
+}
+
+Bone Bone005
+{
+   BoneType Animation
+}

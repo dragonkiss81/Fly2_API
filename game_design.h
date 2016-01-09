@@ -266,7 +266,7 @@ BOOL ActAction(ACTNUM &actsystem, char* act, int damage_num)
 	}
 	else
 	{
-		if (act = "Donzo")
+		if (act != "Donzo")
 		{
 			float fDir[3], uDir[3];
 			fDir[0] = 1.0f; fDir[1] = 1.0f; fDir[2] = 0.0f;
@@ -382,7 +382,6 @@ char* get_monster_atk(ACTNUM &actsystem)
 	}
 }
 
-//Tang: FX
 void GenFX(SCENEid &sID, GAMEFX_SYSTEMid &gFXID, OBJECTid &dummyID, float* Pos, std::vector<char*> &FX_FileName){
 	FnScene scene(sID);
 	if (gFXID != NULL) {
@@ -405,4 +404,10 @@ void GenFX(SCENEid &sID, GAMEFX_SYSTEMid &gFXID, OBJECTid &dummyID, float* Pos, 
 	}
 
 }
-//Tang
+
+void showPicture(FnSprite &sp, char* imageName, int size_x, int size_y,int pos_x, int pos_y)
+{
+	sp.SetSize(size_x, size_y);
+	sp.SetImage(imageName, 0, NULL, 0, NULL, NULL, MANAGED_MEMORY, FALSE, FALSE);
+	sp.SetPosition(pos_x, pos_y, 0);
+}

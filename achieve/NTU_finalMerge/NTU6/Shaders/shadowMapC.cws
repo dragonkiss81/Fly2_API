@@ -1,0 +1,15 @@
+# C.Wang 1031, 2005
+#
+
+Effect shadowmapC.fx
+
+VertexType position normal ; the vertex format
+
+Technique 1
+   0 shadowMap 1 shadowMap C 0
+
+Constant 4
+   0 E Matrix LocalToScreen mWVP
+   1 E Matrix LocalToView mWV
+   2 E Camera Far projectCamera fFar
+   3 E Camera Near projectCamera fNear

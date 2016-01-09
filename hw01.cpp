@@ -11,32 +11,37 @@ Last Updated : 1004, 2015, Kevin C. Wang
 ===============================================================*/
 
 #include "FlyWin32.h"
-#include <vector>
+#include "FyMedia.h"
 #include "game_design.h"
-#include "ShowPicture.cpp"
+#include <vector>
+
 using namespace std;
 
+// ACTOR
 vector<ACTNUM> badguyID(NUM_OF_BADGUYS);
 vector<ACTNUM> BossID(NUM_OF_BOSS);
 ACTNUM LyubuID;
 ProduceBadguys generator[NUM_OF_GENERATOR];
 float genSpot[NUM_OF_GENERATOR][2];
 
-/* ------------- Original Code ----------------*/
-
+// VIEW
 VIEWPORTid vID;                 // the major viewport
 SCENEid sID;                    // the 3D scene
 OBJECTid cID, tID;              // the main camera and the terrain for terrain following
+
+// ACTION
 CHARACTERid actorID;            // the major character
 ACTIONid idleID, runID, curPoseID;
 ACTIONid NormalAttack1ID, NormalAttack2ID, HeavyAttack1ID;
 ROOMid terrainRoomID = FAILED_ID;
 TEXTid textID = FAILED_ID;
-// Globals
+
+//FRAME
 int frame = 0;
 int oldX, oldY, oldXM, oldYM, oldXMM, oldYMM;
 
-SCENEid sID2;                // the 2D scene
+// 2D SCENE
+SCENEid sID2;                
 FnSprite sp;
 FnSprite sp_hpFrame, sp_headLyu, sp_wordLyu, sp_hpBlood, sp_hpMana, sp_deadEnd, sp_trueEnd;
 OBJECTid spID0 = FAILED_ID;
@@ -48,8 +53,12 @@ int picture_count = 1;
 GAMEFX_SYSTEMid gFXID = FAILED_ID;
 OBJECTid dummyID = FAILED_ID;
 
+// MUSIC
+MEDIAid BackMusic_ID;
+MEDIAid hit_ID, BADHIT_ID;
+MEDIAid damage_ID, DIE_ID;
+MEDIAid RunMusuc_ID;
 
-/*---------------------------------------------*/
 
 // Turning Frame Counters
 int dirCount = 0, dirState = 0;
@@ -88,6 +97,13 @@ void FyMain(int argc, char **argv)
 	FySetTexturePath("Data\\NTU6\\Scenes\\Textures");
 	FySetScenePath("Data\\NTU6\\Scenes");
 	FySetGameFXPath("Data\\NTU6\\FX");
+	FyBeginMedia("Data\\NTU6\\Media", 2);
+	BackMusic_ID = FyCreateMediaPlayer("background.mp3", 0, 0, 800, 600);   //­I´º­µ¼Ö
+
+	// include background music
+	FnMedia mP;
+	mP.Object(BackMusic_ID);
+	mP.Play(LOOP);
 
 	// create a viewport
 	vID = FyCreateViewport(0, 0, 1024, 768);
@@ -148,7 +164,7 @@ void FyMain(int argc, char **argv)
 	camera.SetNearPlane(5.0f);
 	camera.SetFarPlane(100000.0f);
 
-	//hw3 : Donzo and Robber02 initialization
+	// Donzo and Robber02 position initialization
 	float temp_pos[3];
 	float temp_fDir[3];
 
@@ -163,20 +179,24 @@ void FyMain(int argc, char **argv)
 	ActorGen(scene, terrainRoomID, badguyID[i], "Robber02", "CombatIdle", temp_pos, temp_fDir, uDir);
 	}
 	*/
+
 	for (int i = 0; i < NUM_OF_BOSS; i++)
 	{
-		temp_pos[0] = 130.636;  //pos[0] + 30 * (rand()%8);
-		temp_pos[1] = 2707.003; //pos[1] + 30 * (rand()%8);
-		temp_pos[2] = 70.897;   //pos[2] + 30 * (rand()%8);
+		//temp_pos[0] = 130.636;  //pos[0] + 30 * (rand()%8);
+		//temp_pos[1] = 2707.003; //pos[1] + 30 * (rand()%8);
+		//temp_pos[2] = 70.897;   //pos[2] + 30 * (rand()%8);
+
+		temp_pos[0] = pos[0] + 30 * (rand()%8);
+		temp_pos[1] = pos[1] + 30 * (rand()%8);
+		temp_pos[2] = pos[2] + 30 * (rand()%8);
+
 		SetValues(temp_fDir, -1.0f, -1.0f, 1.0f);
 
 		ActorGen(scene, terrainRoomID, BossID[i], "Donzo2", "CombatIdle", temp_pos, temp_fDir, uDir);
 		BossID[i].idtype = DONZO;
 	}
 
-
-
-	// hw2 initial : set camera position
+	// set camera position
 	actor.GetPosition(pos);
 
 	pos[0] = pos[0] - SHORTDIST * fDir[0];
@@ -214,7 +234,6 @@ void FyMain(int argc, char **argv)
 	sp.ID(spID0);
 	showPicture(sp, "startTalk_1.png", 780, 180, 10, 10); //showPicture parameter : FnSprite ,imageName, size, position
 
-
 	spID_hpFrame = scene.CreateObject(SPRITE);
 	sp_hpFrame.ID(spID_hpFrame);
 	showPicture(sp_hpFrame, "hp_line.png", 400, 100, 400, 480);
@@ -224,7 +243,6 @@ void FyMain(int argc, char **argv)
 
 	spID_hpMana = scene.CreateObject(SPRITE);
 	sp_hpMana.ID(spID_hpMana);
-	//showPicture(sp_hpBlood, "hp_blood.png", 250, 10, 500, 510);
 
 	spID_headLyu = scene.CreateObject(SPRITE);
 	sp_headLyu.ID(spID_headLyu);
@@ -240,8 +258,6 @@ void FyMain(int argc, char **argv)
 	spID_trueEnd = scene.CreateObject(SPRITE);
 	sp_trueEnd.ID(spID_trueEnd);
 
-
-
 	// set Hotkeys
 	FyDefineHotKey(FY_ESCAPE, QuitGame, FALSE);  // escape for quiting the game
 	FyDefineHotKey(FY_UP, Movement, FALSE);      // Up for moving forward
@@ -251,17 +267,14 @@ void FyMain(int argc, char **argv)
 	FyDefineHotKey(FY_Q, Movement, FALSE);
 	FyDefineHotKey(FY_W, Movement, FALSE);
 	FyDefineHotKey(FY_E, Movement, FALSE);
-
 	FyDefineHotKey(FY_A, Movement, FALSE);       // Turn left with camera rotation
 	FyDefineHotKey(FY_D, Movement, FALSE);		 // Turn right with camera rotation
 	FyDefineHotKey(FY_S, Movement, FALSE);
-
 	FyDefineHotKey(FY_T, Movement, FALSE);   //Talk button
 	FyDefineHotKey(FY_M, Movement, FALSE);   //Mission button
-
 	FyDefineHotKey(FY_I, Movement, FALSE);   //Mission button
 
-											 // define some mouse functions
+	// define some mouse functions
 	FyBindMouseFunction(LEFT_MOUSE, InitPivot, PivotCam, NULL, NULL);
 	FyBindMouseFunction(MIDDLE_MOUSE, InitZoom, ZoomCam, NULL, NULL);
 	FyBindMouseFunction(RIGHT_MOUSE, InitMove, MoveCam, NULL, NULL);
@@ -305,7 +318,9 @@ void GameAI(int skip)
 	if (curPoseID == idleID)					// Automatic mana recovery
 	{
 		if (LyubuID.mana_remain < LyubuID.mana_total)
-			LyubuID.mana_remain += 1;
+			LyubuID.mana_remain += 2;
+		if (LyubuID.blood_remain < LyubuID.blood_total)
+			LyubuID.blood_remain += 1;
 	}
 
 
@@ -334,6 +349,12 @@ void GameAI(int skip)
 					FX_FileName.clear();
 					FX_FileName.push_back("HitForRobber");
 					GenFX(sID, gFXID, dummyID, actorPos, FX_FileName);
+
+					FnMedia BHit;
+					BADHIT_ID = FyCreateMediaPlayer("katana-clash3.mp3", 0, 0, 800, 600);
+					BHit.Object(BADHIT_ID);
+					BHit.Play(ONCE);
+					BHit.SetVolume(7.0f);
 				}
 			}
 		}
@@ -360,19 +381,32 @@ void GameAI(int skip)
 				}
 				else
 				{
-					ACTIONid CombatIdleID = cur_actor.GetBodyAction(NULL, get_monster_atk(badguyID[i]));
-					cur_actor.SetCurrentAction(NULL, 0, CombatIdleID);
-					LyubuID.blood_remain = LyubuID.blood_remain - GUY_HEAVY_ATTACK;
-				
-					FX_FileName.clear();
-					FX_FileName.push_back("HitForRobber");
-					GenFX(sID, gFXID, dummyID, actorPos, FX_FileName);
+
+					if (checkMove)
+					{
+						ACTIONid CombatIdleID = cur_actor.GetBodyAction(NULL, "Run");
+						cur_actor.SetCurrentAction(NULL, 0, CombatIdleID);
+					}
+					else
+					{
+						ACTIONid CombatIdleID = cur_actor.GetBodyAction(NULL, get_monster_atk(BossID[i]));
+						cur_actor.SetCurrentAction(NULL, 0, CombatIdleID);
+						LyubuID.blood_remain = LyubuID.blood_remain - GUY_HEAVY_ATTACK;
+
+						FX_FileName.clear();
+						FX_FileName.push_back("HitForRobber");
+						GenFX(sID, gFXID, dummyID, actorPos, FX_FileName);
+
+						FnMedia BHit;
+						BADHIT_ID = FyCreateMediaPlayer("sword-clash1.mp3", 0, 0, 800, 600);
+						BHit.Object(BADHIT_ID);
+						BHit.Play(ONCE);
+						BHit.SetVolume(7.0f);
+					}
 				}
 			}
 		}
 	}
-
-
 
 
 	// Camera's position and direction as a standard for character's location setting
@@ -385,7 +419,6 @@ void GameAI(int skip)
 	float camVertical = camerafDir[2];
 	camerafDir[2] = 0; // Guaranteed up direction be 1
 	camerauDir[0] = 0; camerauDir[1] = 0; camerauDir[2] = 1;
-
 
 	float dir[3], origin[3], actorfDir[3], actoruDir[3];// origin is the actor's position      
 	actor.GetPosition(origin);
@@ -433,9 +466,6 @@ void GameAI(int skip)
 	dir[1] = actorfDir[1] / ACTORPROBE;
 	dir[2] = -1.0f;
 
-	//////////////////////////////////////////
-	// Homework #01 part 1
-	//////////////////////////////////////////
 
 	if (dirCount % SMOOTHINESS != 0)
 	{
@@ -492,6 +522,7 @@ void GameAI(int skip)
 	}
 
 
+	// FX
 	if (gFXID != FAILED_ID) {
 		FnGameFXSystem gxS(gFXID);
 		BOOL4 beOK = gxS.Play((float)skip, ONCE);
@@ -519,25 +550,22 @@ void RenderIt(int skip)
 	showPicture(sp_hpBlood, "hp_blood.png", (int)250 * ((double)LyubuID.blood_remain / LyubuID.blood_total), 8, 500, 514);
 	showPicture(sp_hpMana, "hp_mana.png", (int)250 * ((double)LyubuID.mana_remain / LyubuID.mana_total), 4, 500, 510);
 
-	if (LyubuID.blood_remain <= 0)
-		showPicture(sp_deadEnd, "dead_end.png", 800, 600, 0, 0);
+	//if (LyubuID.blood_remain <= 0)
+	//	showPicture(sp_deadEnd, "dead_end.png", 800, 600, 0, 0);
 
-	if (BossID[0].blood_remain <= 0)
-		showPicture(sp_trueEnd, "true_end.png", 800, 600, 0, 0);
+	//if (BossID[0].blood_remain <= 0)
+	//	showPicture(sp_trueEnd, "true_end.png", 800, 600, 0, 0);
 
 	vp.RenderSprites(sID2, FALSE, TRUE);  // no clear the background but clear the z buffer
 	FySwapBuffers();
 
 	// get camera's data
-	FnCamera camera;
-	camera.ID(cID);
-
 	FnObject terrain;
 	terrain.ID(tID);
 
 	float pos[3], fDir[3], uDir[3];
-
-	//-----------------HW2 added-----------------------//
+	FnCamera camera;
+	camera.ID(cID);
 
 	float actorPos[3], actorfDir[3], actoruDir[3];
 	FnCharacter actor;
@@ -692,8 +720,6 @@ void RenderIt(int skip)
 		}
 	}
 
-	//-----------------HW2 end-------------------------//
-
 
 	if (dirCount % SMOOTHINESS == 0)
 	{
@@ -747,15 +773,10 @@ movement control
 -------------------*/
 void Movement(BYTE code, BOOL4 value)
 {
-	//////////////////////////////////////////
-	// Homework #01 part 2
-	//////////////////////////////////////////
-	// note : only hotkey input can trigger this function
-
+	// only hotkey input can trigger this function
 
 	FnCharacter actor;
 	FnCharacter badguy;
-	//Tang: FX
 	vector<char*> FX_FileName;
 
 	float actorPos[3], actorfDir[3], actoruDir[3];
@@ -765,8 +786,7 @@ void Movement(BYTE code, BOOL4 value)
 	actor.GetPosition(actorPos);
 	actor.GetDirection(actorfDir, actoruDir);
 
-	// 2. use a global idle_count variable to memorize the action status.
-	//    (to prevent the "slide" actor bug)
+	// use a global idle_count variable to memorize the action status.
 
 	if (value)
 	{
@@ -786,17 +806,30 @@ void Movement(BYTE code, BOOL4 value)
 
 				if (FyDistance(badguyPos, actorPos) < HATKRANGE && badguyID[i].blood_remain > 0)
 				{
+					
+					//FnMedia dam;
+					//damage_ID = FyCreateMediaPlayer("damage6.mp3", 0, 0, 800, 600);
+					//dam.Object(damage_ID);
+					//dam.Play(LOOP);
+					//dam.SetVolume(7.0f);
+					
+					
 					if (!ActAction(badguyID[i], get_monster_act(badguyID[i]), HATKDAMAGE * LyubuID.attack / 20))
 					{
+						FnMedia Die;
+						DIE_ID = FyCreateMediaPlayer("samurai_shouting1.mp3", 0, 0, 800, 600);
+						Die.Object(DIE_ID);
+						Die.Play(ONCE);
+						Die.SetVolume(7.0f);
+						
 						LyubuID.exp_cur += badguyID[i].exp_cur;
 						chk_levelup(LyubuID);
 					}
 				}
 
-				//Tang: FX
-				FX_FileName.clear();
-				FX_FileName.push_back("LyubuDamege");
-				GenFX(sID, gFXID, dummyID, badguyPos, FX_FileName);
+				//FX_FileName.clear();
+				//FX_FileName.push_back("LyubuDamege");
+				//GenFX(sID, gFXID, dummyID, badguyPos, FX_FileName);
 			}
 
 			for (int i = 0; i < NUM_OF_BOSS; i++)
@@ -806,9 +839,14 @@ void Movement(BYTE code, BOOL4 value)
 
 				if (FyDistance(badguyPos, actorPos) < HATKRANGE && BossID[i].blood_remain > 0)
 				{
-					ActAction(BossID[i], get_monster_act(badguyID[i]), HATKDAMAGE * LyubuID.attack / 20);
+					FnMedia dam;
+					damage_ID = FyCreateMediaPlayer("damage6.mp3", 0, 0, 800, 600);
+					dam.Object(damage_ID);
+					dam.Play(LOOP);
+					dam.SetVolume(7.0f);
+					
+					ActAction(BossID[i], get_monster_act(BossID[i]), HATKDAMAGE * LyubuID.attack / 20);
 				
-					//Tang: FX
 					FX_FileName.clear();
 					FX_FileName.push_back("LyubuDamege");
 					GenFX(sID, gFXID, dummyID, badguyPos, FX_FileName);
@@ -836,17 +874,28 @@ void Movement(BYTE code, BOOL4 value)
 
 				if (FyDistance(badguyPos, actorPos) < NATK1RANGE && badguyID[i].blood_remain > 0)
 				{
+					//FnMedia dam;
+					//damage_ID = FyCreateMediaPlayer("damage6.mp3", 0, 0, 800, 600);
+					//dam.Object(damage_ID);
+					//dam.Play(LOOP);
+					//dam.SetVolume(7.0f);
+					
 					if (!ActAction(badguyID[i], get_monster_act(badguyID[i]), NATK1DAMAGE * LyubuID.attack / 20))
 					{
+						FnMedia Die;
+						DIE_ID = FyCreateMediaPlayer("samurai_shouting1.mp3", 0, 0, 800, 600);
+						Die.Object(DIE_ID);
+						Die.Play(ONCE);
+						Die.SetVolume(7.0f);
+						
 						LyubuID.exp_cur += badguyID[i].exp_cur;
 						chk_levelup(LyubuID);
 					}
 				}
 
-				//Tang: FX
-				FX_FileName.clear();
-				FX_FileName.push_back("MonGotHit");
-				GenFX(sID, gFXID, dummyID, badguyPos, FX_FileName);
+				//FX_FileName.clear();
+				//FX_FileName.push_back("MonGotHit");
+				//GenFX(sID, gFXID, dummyID, badguyPos, FX_FileName);
 			}
 
 			for (int i = 0; i < NUM_OF_BOSS; i++)
@@ -856,9 +905,14 @@ void Movement(BYTE code, BOOL4 value)
 
 				if (FyDistance(badguyPos, actorPos) < NATK1RANGE && BossID[i].blood_remain > 0)
 				{
-					ActAction(BossID[i], get_monster_act(badguyID[i]), NATK1DAMAGE * LyubuID.attack / 20);
+					FnMedia dam;
+					damage_ID = FyCreateMediaPlayer("damage6.mp3", 0, 0, 800, 600);
+					dam.Object(damage_ID);
+					dam.Play(LOOP);
+					dam.SetVolume(7.0f);
+					
+					ActAction(BossID[i], get_monster_act(BossID[i]), NATK1DAMAGE * LyubuID.attack / 20);
 				
-					//Tang: FX
 					FX_FileName.clear();
 					FX_FileName.push_back("MonGotHit2G02");
 					GenFX(sID, gFXID, dummyID, badguyPos, FX_FileName);
@@ -882,17 +936,28 @@ void Movement(BYTE code, BOOL4 value)
 
 				if (FyDistance(badguyPos, actorPos) < NATK2RANGE && badguyID[i].blood_remain > 0)
 				{
+					//FnMedia dam;
+					//damage_ID = FyCreateMediaPlayer("damage6.mp3", 0, 0, 800, 600);
+					//dam.Object(damage_ID);
+					//dam.Play(LOOP);
+					//dam.SetVolume(7.0f);
+					
 					if (!ActAction(badguyID[i], get_monster_act(badguyID[i]), NATK2DAMAGE * LyubuID.attack / 20))
 					{
+						FnMedia Die;
+						DIE_ID = FyCreateMediaPlayer("samurai_shouting1.mp3", 0, 0, 800, 600);
+						Die.Object(DIE_ID);
+						Die.Play(ONCE);
+						Die.SetVolume(7.0f);
+						
 						LyubuID.exp_cur += badguyID[i].exp_cur;
 						chk_levelup(LyubuID);
 					}
 				}
 
-				//Tang: FX
-				FX_FileName.clear();
-				FX_FileName.push_back("Lyubu_atk01 -X");
-				GenFX(sID, gFXID, dummyID, badguyPos, FX_FileName);
+				//FX_FileName.clear();
+				//FX_FileName.push_back("Lyubu_atk01 -X");
+				//GenFX(sID, gFXID, dummyID, badguyPos, FX_FileName);
 			}
 
 			for (int i = 0; i < NUM_OF_BOSS; i++)
@@ -902,9 +967,14 @@ void Movement(BYTE code, BOOL4 value)
 
 				if (FyDistance(badguyPos, actorPos) < NATK2RANGE && BossID[i].blood_remain > 0)
 				{
-					ActAction(BossID[i], get_monster_act(badguyID[i]), NATK2DAMAGE);
+					FnMedia dam;
+					damage_ID = FyCreateMediaPlayer("damage6.mp3", 0, 0, 800, 600);
+					dam.Object(damage_ID);
+					dam.Play(LOOP);
+					dam.SetVolume(7.0f);
 					
-					//Tang: FX
+					ActAction(BossID[i], get_monster_act(BossID[i]), NATK2DAMAGE);
+					
 					FX_FileName.clear();
 					FX_FileName.push_back("Lyubu_atk01 -X");
 					GenFX(sID, gFXID, dummyID, badguyPos, FX_FileName);
@@ -948,8 +1018,13 @@ void Movement(BYTE code, BOOL4 value)
 		if (FyCheckHotKeyStatus(FY_Q) && dirCount % SMOOTHINESS == 0 && LyubuID.mana_remain > 0)
 		{
 			curPoseID = NormalAttack1ID;
+	
+			FnMedia hit;
+			hit_ID = FyCreateMediaPlayer("sword-slash4.mp3", 0, 0, 800, 600);
+			hit.Object(hit_ID);
+			hit.Play(LOOP);
+			hit.SetVolume(7.0f);
 
-			//Tang: FX
 			FX_FileName.clear();
 			FX_FileName.push_back("AttacKBasic");
 			FX_FileName.push_back("Lyubu_skill01");
@@ -960,7 +1035,12 @@ void Movement(BYTE code, BOOL4 value)
 		{
 			curPoseID = NormalAttack2ID;
 
-			//Tang: FX
+			FnMedia hit;
+			hit_ID = FyCreateMediaPlayer("sword-slash4.mp3", 0, 0, 800, 600);
+			hit.Object(hit_ID);
+			hit.Play(LOOP);
+			hit.SetVolume(7.0f);
+
 			FX_FileName.clear();
 			FX_FileName.push_back("AttacKBasic");
 			FX_FileName.push_back("Lyubu_skill02");
@@ -972,7 +1052,12 @@ void Movement(BYTE code, BOOL4 value)
 		{
 			curPoseID = HeavyAttack1ID;
 
-			//Tang: FX
+			FnMedia hit;
+			hit_ID = FyCreateMediaPlayer("sword-slash4.mp3", 0, 0, 800, 600);
+			hit.Object(hit_ID);
+			hit.Play(LOOP);
+			hit.SetVolume(7.0f);
+
 			FX_FileName.clear();
 			FX_FileName.push_back("AttacKBasic");
 			FX_FileName.push_back("Lyubu_skill03");
@@ -986,7 +1071,12 @@ void Movement(BYTE code, BOOL4 value)
 		{
 			curPoseID = runID;
 
-			//Tang: FX
+			FnMedia runMedia;
+			RunMusuc_ID = FyCreateMediaPlayer("running2.mp3", 0, 0, 800, 600);
+			runMedia.Object(RunMusuc_ID);
+			runMedia.Play(ONCE);
+			runMedia.SetVolume(7.0f);
+
 			FX_FileName.clear();
 			FX_FileName.push_back("RunFX");
 			GenFX(sID, gFXID, dummyID, actorPos, FX_FileName);
@@ -994,11 +1084,6 @@ void Movement(BYTE code, BOOL4 value)
 		else
 		{
 			curPoseID = idleID;
-
-			//Tang: FX
-			FX_FileName.clear();
-			FX_FileName.push_back("RunFX");
-			GenFX(sID, gFXID, dummyID, actorPos, FX_FileName);
 		}
 
 		actor.SetCurrentAction(NULL, 0, curPoseID, 5.0f);
@@ -1067,8 +1152,6 @@ void QuitGame(BYTE code, BOOL4 value)
 		}
 	}
 }
-
-
 
 /*-----------------------------------
 initialize the pivot of the camera

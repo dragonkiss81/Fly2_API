@@ -1,0 +1,22 @@
+# This shader implements Phong shading with texture
+# C.Wang 0518, 2005
+#
+
+Effect phong_bump_tex1.fx
+
+VertexType position normal texture 1 2 TangentU       ; the vertex format
+
+Technique 1
+   0 PhongBump 2 colorMap 0 0 bumpMap 0 1     ; Tech 0 Name numTex (texNameInshader iTex iLayer)
+   
+Constant 10
+   0 E Matrix LocalToScreen mWVP
+   1 E Matrix Global mWorld
+   2 E Light Position MainLight mainLightPosition
+   3 E Light Color MainLight mainLightColor
+   4 E Light Ambient ambLgt
+   5 E Material Ambient amb
+   6 E Material Diffuse dif
+   7 E Material Specular spe
+   8 E Material Shineness power
+   9 E Camera Position cam camPosition

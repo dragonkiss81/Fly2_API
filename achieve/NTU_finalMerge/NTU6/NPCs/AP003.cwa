@@ -1,0 +1,208 @@
+# Character File
+# Created by Fly v2.0
+#
+Actor v 1.0
+
+Character AP003
+
+Channels 1
+
+BaseScale 1.200000
+
+# Body Data
+Bodies 1
+
+Body AP003
+{
+   Parent Root
+   RootBone Bip001
+   Actions 3
+      ActionData Run SimpleAction Run
+      ActionData Attack SimpleAction Attack
+      ActionData Die SimpleAction Die
+
+   DefaultAction 0 Run 1.000000 0.000000
+
+   PoseNumber 3
+      Pose Run 10 41 DefaultMotion
+      Pose Attack 45 75 DefaultMotion
+      Pose Die 80 115 DefaultMotion
+}
+
+# Bone Data
+Bones 35
+
+Bone Bip001
+{
+   BoneType Animation
+}
+
+Bone Bip001_Footsteps
+{
+   BoneType Animation
+}
+
+Bone Bip001_Pelvis
+{
+   BoneType Animation
+}
+
+Bone Bip001_Spine
+{
+   BoneType Animation
+}
+
+Bone Bip001_Spine1
+{
+   BoneType Animation
+}
+
+Bone Bip001_Spine2
+{
+   BoneType Animation
+}
+
+Bone Bip001_Neck
+{
+   BoneType Animation
+}
+
+Bone Bip001_L_Clavicle
+{
+   BoneType Animation
+}
+
+Bone Bip001_L_UpperArm
+{
+   BoneType Animation
+}
+
+Bone Bip001_L_Forearm
+{
+   BoneType Animation
+}
+
+Bone Bip001_L_Hand
+{
+   BoneType Animation
+}
+
+Bone Bip001_L_Finger0
+{
+   BoneType Animation
+}
+
+Bone Bip001_L_Finger1
+{
+   BoneType Animation
+}
+
+Bone Bip001_R_Clavicle
+{
+   BoneType Animation
+}
+
+Bone Bip001_R_UpperArm
+{
+   BoneType Animation
+}
+
+Bone Bip001_R_Forearm
+{
+   BoneType Animation
+}
+
+Bone Bip001_R_Hand
+{
+   BoneType Animation
+}
+
+Bone Bip001_R_Finger0
+{
+   BoneType Animation
+}
+
+Bone Bip001_R_Finger1
+{
+   BoneType Animation
+}
+
+Bone Bip001_Head
+{
+   BoneType Animation
+}
+
+Bone Bip001_L_Thigh
+{
+   BoneType Animation
+}
+
+Bone Bip001_L_Calf
+{
+   BoneType Animation
+}
+
+Bone Bip001_L_Foot
+{
+   BoneType Animation
+}
+
+Bone Bip001_L_Toe0
+{
+   BoneType Animation
+}
+
+Bone Bip001_R_Thigh
+{
+   BoneType Animation
+}
+
+Bone Bip001_R_Calf
+{
+   BoneType Animation
+}
+
+Bone Bip001_R_Foot
+{
+   BoneType Animation
+}
+
+Bone Bip001_R_Toe0
+{
+   BoneType Animation
+}
+
+Bone Bip001_Tail
+{
+   BoneType Animation
+}
+
+Bone Bip001_Tail1
+{
+   BoneType Animation
+}
+
+Bone Bip001_Tail2
+{
+   BoneType Animation
+}
+
+Bone Bip001_XP
+{
+   BoneType Animation
+}
+
+Bone Bip001_XP02
+{
+   BoneType Animation
+}
+
+Bone Bip001_XPOpp
+{
+   BoneType Animation
+}
+
+Bone Bip001_XPOpp02
+{
+   BoneType Animation
+}
